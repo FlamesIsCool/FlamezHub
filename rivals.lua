@@ -1,45 +1,43 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Flamez - Rivals",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   Icon = 0, 
    LoadingTitle = "Flamez - Rivals",
    LoadingSubtitle = "by Flames",
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+   Theme = "Default", 
 
    DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+   DisableBuildWarnings = false, 
 
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
+      FolderName = nil, 
       FileName = "Flamez Hub"
    },
 
    Discord = {
-      Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "5c9D3VD7se", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = false -- Set this to false to make them join the discord every time they load it up
+      Enabled = true, 
+      Invite = "5c9D3VD7se", 
+      RememberJoins = false 
    },
 
-   KeySystem = true, -- Set this to true to use our key system
+   KeySystem = true, 
    KeySettings = {
       Title = "Flamez - Key System",
       Subtitle = "Key System",
-      Note = "The key is provided in the discord", -- Use this to tell the user how to get a key
-      FileName = "flamezkey", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+      Note = "The key is provided in the discord", 
+      FileName = "flamezkey", 
+      SaveKey = true, 
+      GrabKeyFromSite = false, 
+      Key = {"Hello"} 
    }
 })
 
 local AimingTab = Window:CreateTab("Aiming", "crosshair")
 local VisualsTab = Window:CreateTab("visuals", "eye")
 
--- Divider for UI organization
 local Divider = AimingTab:CreateDivider()
 
--- Dropdown for selecting aiming part
 local Dropdown = AimingTab:CreateDropdown({
     Name = "Select Aiming Part",
     Options = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"},
@@ -51,14 +49,12 @@ local Dropdown = AimingTab:CreateDropdown({
     end,
 })
 
-local selected_part = "Head" -- Default aiming part
+local selected_part = "Head" 
 
--- Services and variables
 local replicated_storage = game:GetService("ReplicatedStorage")
 local players = game:GetService("Players")
 local camera = workspace.CurrentCamera
 
--- Safely load the Utility module
 local utility
 local success, err = pcall(function()
     utility = require(replicated_storage:WaitForChild("Modules"):WaitForChild("Utility"))
@@ -74,7 +70,6 @@ if not utility.Raycast then
     return
 end
 
--- Function to get all potential targets
 local function get_players()
     local entities = {}
     for _, child in workspace:GetChildren() do
@@ -91,7 +86,6 @@ local function get_players()
     return entities
 end
 
--- Function to find the closest player to the crosshair
 local function get_closest_player()
     local closest, closest_distance = nil, math.huge
     local character = players.LocalPlayer.Character
@@ -130,8 +124,7 @@ local function get_closest_player()
     return closest
 end
 
--- Silent Aim Toggle
-local old = utility.Raycast -- Safely store original Raycast function
+local old = utility.Raycast 
 local SilentAimToggle = AimingTab:CreateToggle({
     Name = "Enable Silent Aim",
     CurrentValue = false,
@@ -151,19 +144,16 @@ local SilentAimToggle = AimingTab:CreateToggle({
                 return old(table.unpack(arguments))
             end
         else
-            utility.Raycast = old -- Restore original Raycast
+            utility.Raycast = old 
         end
     end,
 })
 
--- Divider for separation
 local Divider = AimingTab:CreateDivider()
 
--- Regular Aimbot Variables
-local target_locked = false -- Tracks if a target is locked
-local locked_target = nil -- The current locked-on target
+local target_locked = false 
+local locked_target = nil 
 
--- Function to lock on or unlock a target
 local function toggle_lock()
     if target_locked then
         target_locked = false
@@ -176,7 +166,6 @@ local function toggle_lock()
     end
 end
 
--- Keybind for locking onto a target
 local AimbotKeybind = AimingTab:CreateKeybind({
     Name = "Aimbot Lock Keybind",
     CurrentKeybind = "Q",
@@ -187,7 +176,6 @@ local AimbotKeybind = AimingTab:CreateKeybind({
     end,
 })
 
--- Regular Aimbot Toggle
 local RegularAimbotToggle = AimingTab:CreateToggle({
     Name = "Enable Aimbot(BROKEN RIGHT NOW)",
     CurrentValue = false,
@@ -209,58 +197,48 @@ local RegularAimbotToggle = AimingTab:CreateToggle({
     end,
 })
 
--- 1. Load the Sense ESP Library
 local Sense = loadstring(game:HttpGet('https://sirius.menu/sense'))()
 
--- Divider for ESP Settings
 local Divider = VisualsTab:CreateDivider()
 
--- Initialize Default Configuration
-Sense.teamSettings.enemy.enabled = true -- Allow enemy ESP
+Sense.teamSettings.enemy.enabled = true 
 
--- Helper function to create toggles for boolean settings
 local function createBooleanToggle(tab, name, settingPath, default)
     tab:CreateToggle({
         Name = name,
         CurrentValue = default or false,
-        Flag = name .. "Toggle", -- Unique flag for each toggle
+        Flag = name .. "Toggle", 
         Callback = function(Value)
-            -- Access the correct settings table
+
             local settings = Sense.teamSettings.enemy
 
-            -- Traverse to the desired setting
             for i = 1, #settingPath - 1 do
                 settings = settings[settingPath[i]]
             end
 
-            -- Set the value of the last setting
             settings[settingPath[#settingPath]] = Value
         end,
     })
 end
 
--- Helper function to create color pickers
 local function createColorPicker(tab, name, settingPath, defaultColor)
     tab:CreateColorPicker({
         Name = name,
         Color = defaultColor,
-        Flag = name .. "ColorPicker", -- Unique flag for each color picker
+        Flag = name .. "ColorPicker", 
         Callback = function(Value)
-            -- Access the correct settings table
+
             local settings = Sense.teamSettings.enemy
 
-            -- Traverse to the desired setting
             for i = 1, #settingPath - 1 do
                 settings = settings[settingPath[i]]
             end
 
-            -- Set the color
             settings[settingPath[#settingPath]][1] = Value
         end,
     })
 end
 
--- Enemy ESP Toggles with Color Pickers
 createBooleanToggle(VisualsTab, "Enable Box ESP", {"box"}, false)
 createColorPicker(VisualsTab, "Box ESP Color", {"boxColor"}, Color3.new(0, 0.25, 0.75))
 
@@ -283,10 +261,8 @@ createColorPicker(VisualsTab, "Weapon ESP Color", {"weaponColor"}, Color3.new(1,
 createBooleanToggle(VisualsTab, "Enable Off-Screen Arrows", {"offScreenArrow"}, false)
 createColorPicker(VisualsTab, "Off-Screen Arrow Color", {"offScreenArrowColor"}, Color3.new(1, 1, 1))
 
--- Load ESP
 Sense.Load()
 
--- Unload ESP Button
 VisualsTab:CreateButton({
     Name = "Unload ESP",
     Callback = function()
