@@ -1,18 +1,14 @@
--- Load the UI library
 local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/Rain-Design/PPHUD/main/Library.lua'))()
 local Flags = Library.Flags
 
--- Create main window
 local Window = Library:Window({
    Text = "Main"
 })
 
--- Create tabs
 local TabMain = Window:Tab({
    Text = "Main"
 })
 
--- LocalPlayer Section (Left)
 local SectionLocalPlayer = TabMain:Section({
    Text = "LocalPlayer",
    Side = "Left"
@@ -99,7 +95,7 @@ SectionLocalPlayer:Button({
        local character = player.Character or player.CharacterAdded:Wait()
        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
        local flying = true
-       
+
        local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
        bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
        bodyVelocity.Velocity = Vector3.zero
@@ -111,7 +107,7 @@ SectionLocalPlayer:Button({
        local flyConnection
        flyConnection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
            if gameProcessed then return end
-           if input.KeyCode == Enum.KeyCode.E then -- Toggle fly
+           if input.KeyCode == Enum.KeyCode.E then 
                flying = not flying
                if not flying then
                    bodyVelocity:Destroy()
@@ -124,14 +120,13 @@ SectionLocalPlayer:Button({
        game:GetService("RunService").Stepped:Connect(function()
            if flying then
                local camera = workspace.CurrentCamera
-               bodyVelocity.Velocity = camera.CFrame.LookVector * 50 -- Adjust speed
+               bodyVelocity.Velocity = camera.CFrame.LookVector * 50 
                bodyGyro.CFrame = camera.CFrame
            end
        end)
    end
 })
 
--- ESP Section (Right)
 local SectionESP = TabMain:Section({
    Text = "ESP",
    Side = "Right"
@@ -144,15 +139,15 @@ SectionESP:Check({
        if enabled then
            warn("ESP Enabled")
            local function createESP(player)
-               if player == game.Players.LocalPlayer then return end -- Skip local player
+               if player == game.Players.LocalPlayer then return end 
                local character = player.Character or player.CharacterAdded:Wait()
                local highlight = Instance.new("Highlight")
                highlight.Adornee = character
                highlight.Parent = character
-               highlight.FillTransparency = 0.7 -- Adjust for visibility
+               highlight.FillTransparency = 0.7 
                highlight.OutlineTransparency = 0
-               highlight.FillColor = Color3.new(1, 0, 0) -- Red fill
-               highlight.OutlineColor = Color3.new(1, 1, 1) -- White outline
+               highlight.FillColor = Color3.new(1, 0, 0) 
+               highlight.OutlineColor = Color3.new(1, 1, 1) 
            end
 
            local function setupESP()
@@ -184,7 +179,6 @@ SectionESP:Check({
    end
 })
 
--- Auto Win Section (Right)
 local SectionAutoWin = TabMain:Section({
    Text = "Auto Win",
    Side = "Right"
@@ -200,7 +194,7 @@ SectionAutoWin:Check({
                    local character = player.Character
                    if character and character:FindFirstChild("HumanoidRootPart") then
                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame
-                       wait(0.5) -- Adjust delay as needed
+                       wait(0.5) 
                    end
                end
            end
@@ -216,7 +210,7 @@ SectionAutoWin:Check({
        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
        if enabled then
            originalPosition = humanoidRootPart.CFrame
-           humanoidRootPart.CFrame = CFrame.new(0, 1000, 0) -- Adjust to a secret platform location
+           humanoidRootPart.CFrame = CFrame.new(0, 1000, 0) 
        else
            if originalPosition then
                humanoidRootPart.CFrame = originalPosition
@@ -234,7 +228,7 @@ SectionAutoWin:Check({
                for _, object in pairs(workspace.GameObjects:GetChildren()) do
                    if object:IsA("BasePart") then
                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = object.CFrame
-                       wait(0.1) -- Adjust delay as needed
+                       wait(0.1) 
                    end
                end
            end)
@@ -247,7 +241,6 @@ SectionAutoWin:Check({
    end
 })
 
--- Player Teleportation Section (Left)
 local SectionPlayerTeleport = TabMain:Section({
    Text = "Player Teleportation",
    Side = "Left"
