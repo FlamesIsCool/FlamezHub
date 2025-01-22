@@ -21,7 +21,7 @@ local Window = Rayfield:CreateWindow({
       RememberJoins = false 
    },
 
-   KeySystem = true, 
+   KeySystem = false, 
    KeySettings = {
       Title = "Flamez - Key System",
       Subtitle = "Key System",
