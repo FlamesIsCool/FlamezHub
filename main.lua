@@ -1,4 +1,4 @@
-local discordLink = "https://discord.gg/5c9D3VD7se" 
+local discordLink = "https://link-center.net/1284584/flames-kingdom-discord" 
 
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
