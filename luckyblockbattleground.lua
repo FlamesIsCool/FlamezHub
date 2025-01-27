@@ -63,6 +63,77 @@ else
     warn("Your executor does not support HTTP requests.")
 end
 
+--[[ Script for Premium vs Free Members with Notification System ]]
+-- Ensure you are using this script responsibly and comply with Roblox rules and terms.
+
+-- Define premium users (UserIDs or Player Names)
+local PremiumUsers = {
+    7922537696, -- Replace with actual UserIDs of premium members
+    87654321
+}
+
+-- Utility function to check if a player is premium
+local function isPremium(player)
+    return table.find(PremiumUsers, player.UserId) ~= nil
+end
+
+-- Notify all players in the server
+local function notifyAllPlayers(message)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        player:SendNotification({
+            Title = "Script Alert",
+            Text = message,
+            Duration = 5
+        })
+    end
+end
+
+-- Main script
+game.Players.PlayerAdded:Connect(function(player)
+    -- Detect when a player joins and check if they are premium or free
+    local premiumStatus = isPremium(player) and "Premium" or "Free"
+    
+    -- Send notification to all players
+    local message = player.Name .. " has joined the game using the script. Status: " .. premiumStatus
+    notifyAllPlayers(message)
+
+    -- Allow chat commands for premium members
+    player.Chatted:Connect(function(message)
+        local args = string.split(message, " ")
+        local command = args[1]:sub(2) -- Remove the '.' prefix
+        local targetPlayerName = args[2] -- Target player name (if any)
+
+        -- Check if the player is premium
+        if isPremium(player) then
+            if command == "bring" then
+                -- Find target player
+                local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
+                if targetPlayer then
+                    -- Teleport target player to the premium player's position
+                    local targetCharacter = targetPlayer.Character
+                    local premiumCharacter = player.Character
+                    if targetCharacter and premiumCharacter then
+                        local targetHRP = targetCharacter:FindFirstChild("HumanoidRootPart")
+                        local premiumHRP = premiumCharacter:FindFirstChild("HumanoidRootPart")
+                        if targetHRP and premiumHRP then
+                            targetHRP.CFrame = premiumHRP.CFrame
+                            player:SendNotification({Title = "Success", Text = "You brought " .. targetPlayerName, Duration = 3})
+                        end
+                    end
+                else
+                    player:SendNotification({Title = "Error", Text = "Player not found", Duration = 3})
+                end
+            else
+                player:SendNotification({Title = "Error", Text = "Invalid command", Duration = 3})
+            end
+        else
+            -- Notify free players they can't use commands
+            player:SendNotification({Title = "Notice", Text = "You do not have access to premium commands.", Duration = 3})
+        end
+    end)
+end)
+
+
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
