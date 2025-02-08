@@ -1,49 +1,28 @@
---[[ 
-   Player Utilities GUI using Fluent
-   Features:
-     • Walkspeed slider
-     • Jump Power slider
-     • Gravity slider
-     • FOV slider
-     • Infinite Jump toggle
-     • Noclip toggle
-     • Fly toggle with FlySpeed slider
-     • Teleport to Player dropdown (with refresh button)
-     • Reset Player button (resets WalkSpeed and JumpPower)
---]]
-
--- Load the Fluent libraries
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- Create the main window
 local Window = Fluent:CreateWindow({
     Title = "SwirlHub - MM2 " .. Fluent.Version,
     SubTitle = "by Flames",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,        -- Set to false if you want to disable blur
+    Acrylic = true,        
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Create Tabs (Here we make the player functions the main tab)
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "home" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
--- Services and local references
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-----------------------------------------------------------------
--- Walkspeed Slider
-----------------------------------------------------------------
 local WalkspeedSlider = Tabs.Main:AddSlider("Walkspeed", {
     Title = "Walkspeed",
     Description = "Adjust your player's walkspeed.",
@@ -58,9 +37,6 @@ local WalkspeedSlider = Tabs.Main:AddSlider("Walkspeed", {
     end
 })
 
-----------------------------------------------------------------
--- Jump Power Slider
-----------------------------------------------------------------
 local JumpPowerSlider = Tabs.Main:AddSlider("JumpPower", {
     Title = "Jump Power",
     Description = "Adjust your player's jump power.",
@@ -75,9 +51,6 @@ local JumpPowerSlider = Tabs.Main:AddSlider("JumpPower", {
     end
 })
 
-----------------------------------------------------------------
--- Gravity Slider
-----------------------------------------------------------------
 local GravitySlider = Tabs.Main:AddSlider("Gravity", {
     Title = "Gravity",
     Description = "Adjust the game gravity.",
@@ -90,9 +63,6 @@ local GravitySlider = Tabs.Main:AddSlider("Gravity", {
     end
 })
 
-----------------------------------------------------------------
--- FOV Slider
-----------------------------------------------------------------
 local FOVSlider = Tabs.Main:AddSlider("FOV", {
     Title = "Field of View",
     Description = "Adjust the camera's field of view.",
@@ -105,9 +75,6 @@ local FOVSlider = Tabs.Main:AddSlider("FOV", {
     end
 })
 
-----------------------------------------------------------------
--- Infinite Jump Toggle
-----------------------------------------------------------------
 local InfJumpToggle = Tabs.Main:AddToggle("InfJump", {
     Title = "Infinite Jump",
     Default = false,
@@ -132,9 +99,6 @@ InfJumpToggle:OnChanged(function()
     end
 end)
 
-----------------------------------------------------------------
--- Noclip Toggle
-----------------------------------------------------------------
 local NoclipToggle = Tabs.Main:AddToggle("Noclip", {
     Title = "Noclip",
     Default = false,
@@ -146,7 +110,6 @@ NoclipToggle:OnChanged(function()
     NoclipEnabled = NoclipToggle.Value
 end)
 
--- Run every frame to disable collisions if noclip is enabled
 RunService.Stepped:Connect(function()
     if NoclipEnabled and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
@@ -157,9 +120,6 @@ RunService.Stepped:Connect(function()
     end
 end)
 
-----------------------------------------------------------------
--- Fly Toggle and FlySpeed Slider
-----------------------------------------------------------------
 local FlyToggle = Tabs.Main:AddToggle("Fly", {
     Title = "Fly",
     Default = false,
@@ -174,7 +134,7 @@ local FlySpeedSlider = Tabs.Main:AddSlider("FlySpeed", {
     Max = 200,
     Rounding = 1,
     Callback = function(Value)
-        -- The fly speed will update automatically during RenderStepped.
+
     end
 })
 
@@ -187,20 +147,19 @@ FlyToggle:OnChanged(function()
     local character = LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return end
     local hrp = character:FindFirstChild("HumanoidRootPart")
-    
+
     if FlyEnabled then
-        -- Create BodyMover objects to control flying
+
         FlyBodyVelocity = Instance.new("BodyVelocity")
         FlyBodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
         FlyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
         FlyBodyVelocity.Parent = hrp
-        
+
         FlyBodyGyro = Instance.new("BodyGyro")
         FlyBodyGyro.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
         FlyBodyGyro.CFrame = hrp.CFrame
         FlyBodyGyro.Parent = hrp
-        
-        -- Update the fly movement every frame
+
         FlyConnection = RunService.RenderStepped:Connect(function()
             local direction = Vector3.new()
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then
@@ -221,7 +180,7 @@ FlyToggle:OnChanged(function()
             if UserInputService:IsKeyDown(Enum.KeyCode.Q) then
                 direction = direction - Vector3.new(0, 1, 0)
             end
-            
+
             FlyBodyVelocity.Velocity = direction * FlySpeedSlider.Value
             if direction.Magnitude > 0 then
                 FlyBodyGyro.CFrame = CFrame.new(hrp.Position, hrp.Position + direction)
@@ -242,10 +201,6 @@ FlyToggle:OnChanged(function()
     end
 end)
 
-----------------------------------------------------------------
--- Teleport to Player Dropdown
-----------------------------------------------------------------
--- Function to get a list of other players' names
 local function getPlayerNames()
     local names = {}
     for _, player in ipairs(Players:GetPlayers()) do
@@ -272,7 +227,6 @@ local TeleportDropdown = Tabs.Main:AddDropdown("TeleportToPlayer", {
     end
 })
 
--- A button to refresh the player list in the dropdown
 Tabs.Main:AddButton({
     Title = "Refresh Player List",
     Description = "Update the teleport dropdown with current players.",
@@ -281,9 +235,6 @@ Tabs.Main:AddButton({
     end
 })
 
-----------------------------------------------------------------
--- Reset Player Button (Optional)
-----------------------------------------------------------------
 Tabs.Main:AddButton({
     Title = "Reset Player",
     Description = "Reset WalkSpeed and JumpPower to default values.",
@@ -297,13 +248,8 @@ Tabs.Main:AddButton({
     end
 })
 
---------------------------------------------------
--- ESP Section (for Murderer, Sheriff, Innocent, Coin)
---------------------------------------------------
--- Create a new section in the Main tab for ESP features
 local ESPSection = Tabs.Main:AddSection("ESP")
 
--- Create toggles for each ESP category
 local murdererESPToggle = ESPSection:AddToggle("MurdererESP", {
     Title = "Murderer ESP",
     Description = "Highlight the murderer in red.",
@@ -328,32 +274,16 @@ local coinESPToggle = ESPSection:AddToggle("CoinESP", {
     Default = true
 })
 
--- Services and local references
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- Tables to store highlight objects for players and coins
-local playerHighlights = {}  -- [player] = Highlight instance
-local coinHighlights = {}    -- [coin instance] = Highlight instance
+local playerHighlights = {}  
+local coinHighlights = {}    
 
---[[
-    updateESPForPlayer(player)
-    
-    Checks the player's Backpack and Character for Tools:
-      - If the player has a "Knife", they’re considered a murderer.
-      - Otherwise if they have a "Gun", they’re considered sheriff.
-      - Otherwise they’re innocent.
-      
-    Depending on which toggles are enabled, a Highlight instance is created (or updated)
-    for the player's character with the corresponding color:
-      • Red for murderer
-      • Blue for sheriff
-      • Green for innocent
---]]
 local function updateESPForPlayer(player)
     if not player.Character then
-        -- If no character, remove any highlight we might have
+
         if playerHighlights[player] then
             playerHighlights[player]:Destroy()
             playerHighlights[player] = nil
@@ -363,7 +293,6 @@ local function updateESPForPlayer(player)
 
     local character = player.Character
 
-    -- Helper function to check for a tool with a specific name in Backpack and Character.
     local function hasTool(toolName)
         local found = false
         if player:FindFirstChild("Backpack") then
@@ -389,17 +318,15 @@ local function updateESPForPlayer(player)
     local isSheriff  = (not isMurderer) and hasTool("Gun")
     local isInnocent  = (not isMurderer and not isSheriff)
 
-    -- Decide what color should be used based on toggles and the above checks.
     local desiredColor
     if isMurderer and murdererESPToggle.Value then
-        desiredColor = Color3.new(1, 0, 0)   -- Red
+        desiredColor = Color3.new(1, 0, 0)   
     elseif isSheriff and sheriffESPToggle.Value then
-        desiredColor = Color3.new(0, 0, 1)   -- Blue
+        desiredColor = Color3.new(0, 0, 1)   
     elseif isInnocent and innocentESPToggle.Value then
-        desiredColor = Color3.new(0, 1, 0)   -- Green
+        desiredColor = Color3.new(0, 1, 0)   
     end
 
-    -- If we have a desired color, create (or update) a Highlight instance.
     if desiredColor then
         if not playerHighlights[player] then
             local h = Instance.new("Highlight")
@@ -408,7 +335,7 @@ local function updateESPForPlayer(player)
             h.OutlineTransparency = 1
             h.Adornee = character
             h.FillColor = desiredColor
-            -- Parent the highlight to the character so it gets cleaned up on death.
+
             h.Parent = character
             playerHighlights[player] = h
         else
@@ -418,7 +345,7 @@ local function updateESPForPlayer(player)
             end
         end
     else
-        -- If no ESP should be shown, remove any existing highlight.
+
         if playerHighlights[player] then
             playerHighlights[player]:Destroy()
             playerHighlights[player] = nil
@@ -426,11 +353,10 @@ local function updateESPForPlayer(player)
     end
 end
 
--- Update ESP for all players every second.
 spawn(function()
     while wait(1) do
         for _, player in ipairs(Players:GetPlayers()) do
-            -- Optionally, you can skip the LocalPlayer if you don't want to highlight yourself.
+
             if player ~= LocalPlayer then
                 updateESPForPlayer(player)
             end
@@ -438,7 +364,6 @@ spawn(function()
     end
 end)
 
--- Update when toggles change (refresh all players’ ESP)
 local function refreshAllPlayerESP()
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
@@ -451,41 +376,37 @@ murdererESPToggle:OnChanged(refreshAllPlayerESP)
 sheriffESPToggle:OnChanged(refreshAllPlayerESP)
 innocentESPToggle:OnChanged(refreshAllPlayerESP)
 
--- Also update when a new character loads
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
-        wait(0.5)  -- slight delay to let the character load fully
+        wait(0.5)  
         updateESPForPlayer(player)
     end)
 end)
 
-
--- Table to store created coin highlight instances
 local coinHighlights = coinHighlights or {}
 
--- This loop updates the coin ESP every second.
 spawn(function()
     while wait(0.1) do
         if coinESPToggle.Value then
-            -- Search through all descendants in the workspace for any Model named "CoinContainer"
+
             for _, container in ipairs(workspace:GetDescendants()) do
                 if container:IsA("Model") and container.Name == "CoinContainer" then
-                    -- Loop through all children of the CoinContainer
+
                     for _, coinServer in ipairs(container:GetChildren()) do
                         if coinServer.Name == "Coin_Server" then
                             local coinVisual = coinServer:FindFirstChild("CoinVisual")
                             if coinVisual then
                                 local mainCoin = coinVisual:FindFirstChild("MainCoin")
                                 if mainCoin and mainCoin:IsA("MeshPart") then
-                                    -- Create a Highlight instance if one doesn't already exist for this MainCoin
+
                                     if not coinHighlights[mainCoin] then
                                         local h = Instance.new("Highlight")
                                         h.Name = "CoinESPHighlight"
-                                        h.FillColor = Color3.fromRGB(0, 255, 255)  -- Cyan
+                                        h.FillColor = Color3.fromRGB(0, 255, 255)  
                                         h.FillTransparency = 0.5
                                         h.OutlineTransparency = 1
                                         h.Adornee = mainCoin
-                                        h.Parent = mainCoin  -- Parent to the part so it cleans up naturally
+                                        h.Parent = mainCoin  
                                         coinHighlights[mainCoin] = h
                                     end
                                 end
@@ -495,7 +416,7 @@ spawn(function()
                 end
             end
         else
-            -- If the coin ESP toggle is off, remove any existing highlights
+
             for coinObj, h in pairs(coinHighlights) do
                 if h then
                     h:Destroy()
@@ -506,13 +427,8 @@ spawn(function()
     end
 end)
 
-
--- Create a new section in the Settings tab for executor/utilities
 local utilitiesSection = Tabs.Settings:AddSection("Utilities")
 
---------------------------------------------------
--- Rejoin Button
---------------------------------------------------
 utilitiesSection:AddButton({
     Title = "Rejoin",
     Description = "Rejoin the current server.",
@@ -524,9 +440,6 @@ utilitiesSection:AddButton({
     end
 })
 
---------------------------------------------------
--- Serverhop Button
---------------------------------------------------
 utilitiesSection:AddButton({
     Title = "Serverhop",
     Description = "Hop to a different server instance.",
@@ -537,8 +450,6 @@ utilitiesSection:AddButton({
         local LocalPlayer = Players.LocalPlayer
         local PlaceId = game.PlaceId
 
-        -- This example uses a simple HTTP request to get a list of servers.
-        -- Adjust the HTTP request function as needed depending on your executor.
         local req = syn and syn.request or http_request or request
         if not req then
             warn("HTTP request function not available.")
@@ -568,9 +479,6 @@ utilitiesSection:AddButton({
     end
 })
 
---------------------------------------------------
--- Identify Executor Paragraph
---------------------------------------------------
 local executorName, executorVersion = "Unknown", "Unknown"
 if identifyexecutor and type(identifyexecutor) == "function" then
     local result1, result2 = identifyexecutor()
@@ -580,33 +488,23 @@ if identifyexecutor and type(identifyexecutor) == "function" then
     end
 end
 
--- Display the result in a paragraph.
 utilitiesSection:AddParagraph({
     Title = "Executor Type",
     Content = "Executor: " .. executorName .. " (v" .. executorVersion .. ")"
 })
 
---------------------------------------------------
--- Set FPS Cap Button
---------------------------------------------------
 utilitiesSection:AddButton({
     Title = "Set FPS Cap",
     Description = "Set your FPS cap to Infinite.",
     Callback = function()
         if setfpscap then
-            setfpscap(999)  -- Adjust the value as needed.
+            setfpscap(999)  
         else
             warn("setfpscap function not available on your executor.")
         end
     end
 })
 
-
-
-
-----------------------------------------------------------------
--- Save and Interface Manager Setup (Optional)
-----------------------------------------------------------------
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 
@@ -619,15 +517,12 @@ SaveManager:SetFolder("SwirlHub/MM2")
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
--- Select the first (Player) tab on load
 Window:SelectTab(1)
 
--- A startup notification
 Fluent:Notify({
     Title = "SwirlHub",
     Content = "Player script has been loaded.",
     Duration = 8
 })
 
--- Optionally load an autoload config
 SaveManager:LoadAutoloadConfig()
