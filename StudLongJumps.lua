@@ -3,8 +3,8 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "SwirlHub - Stud Long Jumps Obby " .. Fluent.Version,
-    SubTitle = "by Flames",
+    Title = "✨ SwirlHub - Stud Long Jumps Obby " .. Fluent.Version,
+    SubTitle = "🔥 by Flames",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,        
@@ -13,8 +13,8 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "home" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Main = Window:AddTab({ Title = "🏠 Main", Icon = "home" }),
+    Settings = Window:AddTab({ Title = "⚙️ Settings", Icon = "settings" })
 }
 
 local Options = Fluent.Options
@@ -24,7 +24,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
 local autoActive = false
-
 local autoLoopThread = nil
 
 local function completeCheckpoints()
@@ -55,17 +54,16 @@ end
 
 local function autoRebirth()
     local rebirthEvent = ReplicatedStorage:WaitForChild("RebirthEvent")
-    print("Auto rebirth: Firing RebirthEvent")
+    print("🚀 Auto rebirth: Firing RebirthEvent")
     rebirthEvent:FireServer()
 end
 
-local AutoToggle = Tabs.Main:AddToggle("AutoCPR", { Title = "Auto Checkpoints & Rebirth", Default = false })
+local AutoToggle = Tabs.Main:AddToggle("AutoCPR", { Title = "🚀 Auto Checkpoints & Rebirth", Default = false })
 
 AutoToggle:OnChanged(function()
     autoActive = Options.AutoCPR.Value
     if autoActive then
-        print("Auto Checkpoints & Rebirth enabled")
-
+        print("🚀 Auto Checkpoints & Rebirth enabled")
         if not autoLoopThread then
             autoLoopThread = spawn(function()
                 while autoActive do
@@ -75,22 +73,20 @@ AutoToggle:OnChanged(function()
                     wait(0)  
                 end
                 autoLoopThread = nil
-                print("Auto Checkpoints & Rebirth loop stopped")
+                print("⏹ Auto Checkpoints & Rebirth loop stopped")
             end)
         end
     else
-        print("Auto Checkpoints & Rebirth disabled")
+        print("⏹ Auto Checkpoints & Rebirth disabled")
     end
 end)
 
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 local WalkspeedSlider = Tabs.Main:AddSlider("Walkspeed", {
-    Title = "Walkspeed",
+    Title = "🏃‍♂️ Walkspeed",
     Description = "Adjust your player's walkspeed.",
     Default = 16,
     Min = 16,
@@ -104,7 +100,7 @@ local WalkspeedSlider = Tabs.Main:AddSlider("Walkspeed", {
 })
 
 local JumpPowerSlider = Tabs.Main:AddSlider("JumpPower", {
-    Title = "Jump Power",
+    Title = "🦘 Jump Power",
     Description = "Adjust your player's jump power.",
     Default = 50,
     Min = 50,
@@ -118,7 +114,7 @@ local JumpPowerSlider = Tabs.Main:AddSlider("JumpPower", {
 })
 
 local GravitySlider = Tabs.Main:AddSlider("Gravity", {
-    Title = "Gravity",
+    Title = "🌍 Gravity",
     Description = "Adjust the game gravity.",
     Default = workspace.Gravity,
     Min = 0,
@@ -130,7 +126,7 @@ local GravitySlider = Tabs.Main:AddSlider("Gravity", {
 })
 
 local FOVSlider = Tabs.Main:AddSlider("FOV", {
-    Title = "Field of View",
+    Title = "👁 Field of View",
     Description = "Adjust the camera's field of view.",
     Default = Camera.FieldOfView,
     Min = 20,
@@ -142,7 +138,7 @@ local FOVSlider = Tabs.Main:AddSlider("FOV", {
 })
 
 local InfJumpToggle = Tabs.Main:AddToggle("InfJump", {
-    Title = "Infinite Jump",
+    Title = "🦘 Infinite Jump",
     Default = false,
     Description = "Enable infinite jump."
 })
@@ -166,7 +162,7 @@ InfJumpToggle:OnChanged(function()
 end)
 
 local NoclipToggle = Tabs.Main:AddToggle("Noclip", {
-    Title = "Noclip",
+    Title = "🚫 Noclip",
     Default = false,
     Description = "Enable noclip (walk through walls)."
 })
@@ -187,13 +183,13 @@ RunService.Stepped:Connect(function()
 end)
 
 local FlyToggle = Tabs.Main:AddToggle("Fly", {
-    Title = "Fly",
+    Title = "🕊 Fly",
     Default = false,
     Description = "Enable flying mode."
 })
 
 local FlySpeedSlider = Tabs.Main:AddSlider("FlySpeed", {
-    Title = "Fly Speed",
+    Title = "🚀 Fly Speed",
     Description = "Adjust your fly speed.",
     Default = 50,
     Min = 10,
@@ -215,7 +211,6 @@ FlyToggle:OnChanged(function()
     local hrp = character:FindFirstChild("HumanoidRootPart")
 
     if FlyEnabled then
-
         FlyBodyVelocity = Instance.new("BodyVelocity")
         FlyBodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
         FlyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
@@ -278,7 +273,7 @@ local function getPlayerNames()
 end
 
 local TeleportDropdown = Tabs.Main:AddDropdown("TeleportToPlayer", {
-    Title = "Teleport to Player",
+    Title = "🚀 Teleport to Player",
     Description = "Select a player to teleport to their position.",
     Values = getPlayerNames(),
     Multi = false,
@@ -294,7 +289,7 @@ local TeleportDropdown = Tabs.Main:AddDropdown("TeleportToPlayer", {
 })
 
 Tabs.Main:AddButton({
-    Title = "Refresh Player List",
+    Title = "🔄 Refresh Player List",
     Description = "Update the teleport dropdown with current players.",
     Callback = function()
         TeleportDropdown:SetValues(getPlayerNames())
@@ -302,7 +297,7 @@ Tabs.Main:AddButton({
 })
 
 Tabs.Main:AddButton({
-    Title = "Reset Player",
+    Title = "🔄 Reset Player",
     Description = "Reset WalkSpeed and JumpPower to default values.",
     Callback = function()
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
@@ -315,8 +310,8 @@ Tabs.Main:AddButton({
 })
 
 Fluent:Notify({
-    Title = "Fluent",
-    Content = "Auto Checkpoints & Rebirth script has been loaded.",
+    Title = "SwirlHub",
+    Content = "Script has loaded, enjoy! 😎",
     Duration = 8
 })
 
