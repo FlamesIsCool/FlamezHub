@@ -493,16 +493,42 @@ local replicated_storage = game:GetService("ReplicatedStorage")
 
 --// variables
 local localplayer = players.LocalPlayer
-local playerscripts = localplayer.PlayerScripts
-local camera_controller = require(playerscripts.Controllers.CameraController)
+local playerscripts = localplayer:FindFirstChild("PlayerScripts")
+
 
 local spinning = false
 local spin_speed = 100 -- Adjust for faster or slower spinning
 local spin_connection
 
---// Function to toggle third-person mode
+-- Attempt to require CameraController, but catch errors for unsupported executors
+local camera_controller
+local camera_controller_success, camera_controller_result = pcall(function()
+    return require(playerscripts.Controllers.CameraController)
+end)
+
+if camera_controller_success then
+    camera_controller = camera_controller_result
+else
+    camera_controller = nil
+end
+
+-- Function to send Fluent Notifications
+local function sendFluentNotification(title, content, subcontent, duration)
+    Fluent:Notify({
+        Title = title,
+        Content = content,
+        SubContent = subcontent or "", -- Optional
+        Duration = duration or 5 -- Default to 5 seconds if not specified
+    })
+end
+
+--// Third-Person Toggle Function
 local function toggleThirdPerson(enabled)
-    camera_controller:SetPOV(not enabled, 0, false) -- Toggle between first and third person
+    if camera_controller then
+        camera_controller:SetPOV(not enabled, 0, false) -- Enable third-person
+    else
+        sendFluentNotification("Executor Error", "Your executor does not support require(), third person may not work!", "Use a high-level executor.", 5)
+    end
 end
 
 --// Function to toggle spinning effect
@@ -530,15 +556,14 @@ local function toggleSpin(enabled)
     end
 end
 
---// Toggle UI integration
-local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Third Person", Default = false })
+local ThirdPersonToggle = Tabs.Main:AddToggle("ThirdPersonToggle", {Title = "Third Person", Default = false })
 
-Toggle:OnChanged(function()
-    print("Third-person toggle changed:", Options.MyToggle.Value)
-    toggleThirdPerson(Options.MyToggle.Value)
+ThirdPersonToggle:OnChanged(function()
+    print("Third-person toggle changed:", Options.ThirdPersonToggle.Value)
+    toggleThirdPerson(Options.ThirdPersonToggle.Value)
 end)
 
-Options.MyToggle:SetValue(false) -- Default to first-person mode
+Options.ThirdPersonToggle:SetValue(false) -- Default to first-person mode
 
 --// Spin toggle
 local SpinToggle = Tabs.Main:AddToggle("SpinToggle", {Title = "Spin Character", Default = false })
