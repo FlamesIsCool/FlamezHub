@@ -575,6 +575,57 @@ end)
 
 Options.SpinToggle:SetValue(false) -- Default to no spinning
 
+local ClientSection = Tabs.Main:AddSection("Client")
+
+--// Services
+local Lighting = game:GetService("Lighting")
+local isDarkMode = false -- Default to Light Mode
+
+-- Function to toggle Dark/Light Mode
+local function toggleDarkMode()
+    if isDarkMode then
+        -- Light Mode Settings
+        Lighting.Brightness = 2
+        Lighting.OutdoorAmbient = Color3.fromRGB(200, 200, 200)
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        isDarkMode = false
+
+        -- Notify user
+        Fluent:Notify({
+            Title = "Mode Switched",
+            Content = "Switched to Light Mode",
+            Duration = 3
+        })
+    else
+        -- Dark Mode Settings
+        Lighting.Brightness = 0.5
+        Lighting.OutdoorAmbient = Color3.fromRGB(30, 30, 30)
+        Lighting.Ambient = Color3.fromRGB(20, 20, 20)
+        isDarkMode = true
+
+        -- Notify user
+        Fluent:Notify({
+            Title = "Mode Switched",
+            Content = "Switched to Dark Mode",
+            Duration = 3
+        })
+    end
+end
+
+-- UI Button to Toggle Dark/Light Mode
+Tabs.Main:AddButton({
+    Title = "Toggle Dark/Light Mode",
+    Description = "Switch between dark mode and light mode",
+    Callback = function()
+        toggleDarkMode()
+    end
+})
+
+
+
+
+
+
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 
