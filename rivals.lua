@@ -478,6 +478,78 @@ game:GetService("RunService").Stepped:Connect(function()
     end
 end)
 
+local ExtraSection = Tabs.Main:AddSection("Extra")
+
+--// Ensure RunService is properly assigned
+local success, run_service = pcall(function() return game:GetService("RunService") end)
+if not success or not run_service then
+    warn("Failed to get RunService!")
+    return
+end
+
+--// services
+local players = game:GetService("Players")
+local replicated_storage = game:GetService("ReplicatedStorage")
+
+--// variables
+local localplayer = players.LocalPlayer
+local playerscripts = localplayer.PlayerScripts
+local camera_controller = require(playerscripts.Controllers.CameraController)
+
+local spinning = false
+local spin_speed = 100 -- Adjust for faster or slower spinning
+local spin_connection
+
+--// Function to toggle third-person mode
+local function toggleThirdPerson(enabled)
+    camera_controller:SetPOV(not enabled, 0, false) -- Toggle between first and third person
+end
+
+--// Function to toggle spinning effect
+local function toggleSpin(enabled)
+    if not run_service then
+        warn("RunService is nil, cannot enable spin.")
+        return
+    end
+
+    if enabled then
+        spinning = true
+        if spin_connection then spin_connection:Disconnect() end -- Prevent duplicate connections
+        spin_connection = run_service.RenderStepped:Connect(function()
+            if localplayer.Character and localplayer.Character:FindFirstChild("HumanoidRootPart") then
+                local root = localplayer.Character.HumanoidRootPart
+                root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(spin_speed), 0)
+            end
+        end)
+    else
+        spinning = false
+        if spin_connection then
+            spin_connection:Disconnect()
+            spin_connection = nil
+        end
+    end
+end
+
+--// Toggle UI integration
+local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Third Person", Default = false })
+
+Toggle:OnChanged(function()
+    print("Third-person toggle changed:", Options.MyToggle.Value)
+    toggleThirdPerson(Options.MyToggle.Value)
+end)
+
+Options.MyToggle:SetValue(false) -- Default to first-person mode
+
+--// Spin toggle
+local SpinToggle = Tabs.Main:AddToggle("SpinToggle", {Title = "Spin Character", Default = false })
+
+SpinToggle:OnChanged(function()
+    print("Spin toggle changed:", Options.SpinToggle.Value)
+    toggleSpin(Options.SpinToggle.Value)
+end)
+
+Options.SpinToggle:SetValue(false) -- Default to no spinning
+
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 
