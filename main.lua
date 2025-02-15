@@ -1,84 +1,81 @@
+print([[
+
+               _      _ _           _     
+              (_)    | | |         | |    
+  _____      ___ _ __| | |__  _   _| |__  
+ / __\ \ /\ / / | '__| | '_ \| | | | '_ \ 
+ \__ \\ V  V /| | |  | | | | | |_| | |_) |
+ |___/ \_/\_/ |_|_|  |_|_| |_|\__,_|_.__/ 
+
+   🌊 SwirlHub - The Best ScriptHub 🚀
+--------------------------------------------------
+   🔑 Scripts are open source
+   🌍 Join our Discord & unlock premium scripts.
+   ⚡ Works for any running executor
+--------------------------------------------------
+   💡 Created by Flames 🔥
+
+]])
+
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "SwirlHub - Key System",
+    Title = "🌌 SwirlHub - Key System",
     SubTitle = "by Flames",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(600, 480),
+    TabWidth = 170,
+    Size = UDim2.fromOffset(620, 500),
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Key System", Icon = "key" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Main = Window:AddTab({ Title = "Key System", Icon = "key" })
 }
 
 local Options = Fluent.Options
 
 Fluent:Notify({
-    Title = "Welcome!",
-    Content = "Please complete the linkvertise process to join our Discord!",
-    Duration = 5
+    Title = "👋 Welcome!",
+    Content = "Complete the process to access the script!",
+    Duration = 5,
+    Type = "info"
 })
 
-local KeySection = Tabs.Main:AddSection("Key System")
+-- 🌟 Key System UI
+local KeySection = Tabs.Main:AddSection("🔐 Key Authentication")
 
 KeySection:AddParagraph({
-    Title = "🔑 How to Get the Script",
-    Content = "Click the button below to copy the linkvertise link to your clipboard. Paste it in your browser, complete the process, and you will be invited to our Discord where the script is located."
+    Title = "📜 How to Access the Script",
+    Content = "Click the button below to copy the verification link. Open it in your browser, complete the steps, and you'll be invited to our Discord where the script is located."
 })
 
 KeySection:AddButton({
-    Title = "📋 Copy Linkvertise Link",
-    Description = "Click to copy the linkvertise link to your clipboard.",
+    Title = "📋 Copy Link",
+    Description = "Click to copy the verification link to your clipboard.",
     Callback = function()
         setclipboard("https://linkunlocker.com/unlock-exclusive-access-join-our-community-now-NKcfZ")
         Fluent:Notify({
-            Title = "Copied!",
-            Content = "The linkvertise link has been copied to your clipboard.",
-            Duration = 3
+            Title = "✅ Link Copied!",
+            Content = "Paste it in your browser and follow the steps.",
+            Duration = 4,
+            Type = "success"
         })
     end
 })
 
 KeySection:AddParagraph({
-    Title = "📜 Instructions",
-    Content = "After completing the linkvertise process, you will be redirected to our Discord server where you can get the script."
+    Title = "📢 Instructions",
+    Content = "Once you've completed the process, you'll be redirected to our Discord where you can access the script. Make sure to follow all the instructions carefully!"
 })
 
-local InterfaceSection = Tabs.Settings:AddSection("Interface")
-
-InterfaceSection:AddToggle("DarkModeToggle", {
-    Title = "🌙 Dark Mode",
-    Default = true,
-    Callback = function(State)
-        Fluent:SetTheme(State and "Darker" or "Light")
-        Fluent:Notify({
-            Title = "Theme Updated",
-            Content = State and "Dark mode enabled." or "Light mode enabled.",
-            Duration = 3
-        })
-    end
-})
-
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetFolder("SwirlHub/KeySystem")
-InterfaceManager:SetFolder("SwirlHub/KeySystem")
-
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-Window:SelectTab(1)
 
 Fluent:Notify({
-    Title = "SwirlHub",
-    Content = "Key system loaded successfully!",
-    Duration = 5
+    Title = "✅ SwirlHub",
+    Content = "Key system successfully loaded!",
+    Duration = 5,
+    Type = "success"
 })
