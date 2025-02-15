@@ -36,7 +36,7 @@ KeySection:AddButton({
     Title = "📋 Copy Linkvertise Link",
     Description = "Click to copy the linkvertise link to your clipboard.",
     Callback = function()
-        setclipboard("https://link-center.net/1284584/flames-kingdom-discord")
+        setclipboard("https://linkunlocker.com/unlock-exclusive-access-join-our-community-now-NKcfZ")
         Fluent:Notify({
             Title = "Copied!",
             Content = "The linkvertise link has been copied to your clipboard.",
