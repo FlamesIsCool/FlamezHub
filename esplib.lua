@@ -1,4 +1,4 @@
--- ESP Library by ChatGPT
+-- ESP Library for Roblox Executors
 local ESP = {}
 
 -- Settings
@@ -8,13 +8,11 @@ ESP.MaxDistance = 500
 
 -- Features Toggles
 ESP.Boxes = true
-ESP.ThreeDBoxes = false
 ESP.Names = true
 ESP.Tracers = true
 ESP.Health = true
 ESP.HeadDot = true
 ESP.Arrows = true
-ESP.Highlight = true
 
 -- Services
 local Players = game:GetService("Players")
@@ -45,7 +43,7 @@ local function GetColor(Player)
     return (ESP.TeamCheck and Player.Team == LocalPlayer.Team) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
 end
 
--- Function to create ESP for a player
+-- Function to create ESP for all players
 function ESP.Add(Player)
     if Player == LocalPlayer then return end
     local Character = Player.Character
@@ -68,6 +66,13 @@ function ESP.Remove(Player)
             Object:Remove()
         end
         ESPObjects[Player] = nil
+    end
+end
+
+-- Function to apply ESP to all players
+function ESP.ApplyToAll()
+    for _, Player in pairs(Players:GetPlayers()) do
+        ESP.Add(Player)
     end
 end
 
@@ -132,10 +137,7 @@ end
 RunService.RenderStepped:Connect(UpdateESP)
 
 -- Connect Player Events
-for _, Player in pairs(Players:GetPlayers()) do
-    ESP.Add(Player)
-end
-
+ESP.ApplyToAll()
 Players.PlayerAdded:Connect(ESP.Add)
 Players.PlayerRemoving:Connect(ESP.Remove)
 
