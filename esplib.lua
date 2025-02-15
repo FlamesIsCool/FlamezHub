@@ -1,151 +1,219 @@
--- Ultimate ESP Library (Handles Everything)
+-- Ultimate ESP Library (Improved Version)
 local ESP = {}
+ESP.__index = ESP
 
--- SETTINGS
-ESP.Enabled = true
-ESP.TeamCheck = false
-ESP.MaxDistance = 1000
-
--- Feature Toggles
-ESP.Boxes = true
-ESP.Names = true
-ESP.Tracers = true
-ESP.Health = true
-ESP.HeadDot = true
-ESP.Arrows = true
+--[[ 
+    Configuration Settings:
+      - Enabled: Master toggle.
+      - TeamCheck: If true, ESP color will be green for your team.
+      - MaxDistance: Maximum distance to display ESP.
+      - Boxes, Names, Tracers, Health, HeadDot, Arrows: Toggle individual features.
+      - BoxSizeFactor, BoxBaseSize, HealthBarWidth, HealthBarOffset, NameOffset, ArrowDistance, ArrowPoints, TextSize:
+          Additional style and positioning options.
+]]
+ESP.Config = {
+    Enabled = true,
+    TeamCheck = false,
+    MaxDistance = 1000,
+    
+    Boxes = true,
+    Names = true,
+    Tracers = true,
+    Health = true,
+    HeadDot = true,
+    Arrows = true,
+    
+    BoxSizeFactor = 10,
+    BoxBaseSize = Vector2.new(50, 80),
+    HealthBarWidth = 4,
+    HealthBarOffset = Vector2.new(-6, 0),
+    NameOffset = Vector2.new(0, -15),
+    ArrowDistance = 150,
+    ArrowPoints = { Vector2.new(-10, 10), Vector2.new(10, 10), Vector2.new(0, -10) },
+    TextSize = 18
+}
 
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local Camera = game.Workspace.CurrentCamera
+local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- ESP Object Storage
+-- Storage for ESP drawings per player
 local ESPObjects = {}
 
--- Function to convert world coordinates to screen coordinates
-local function WorldToScreen(Position)
-    local ScreenPos, OnScreen = Camera:WorldToViewportPoint(Position)
-    return Vector2.new(ScreenPos.X, ScreenPos.Y), OnScreen
+-- Utility: Convert a world position to a 2D screen position.
+local function worldToScreen(position)
+    local screenPos, onScreen = Camera:WorldToViewportPoint(position)
+    return Vector2.new(screenPos.X, screenPos.Y), onScreen
 end
 
--- Function to create a drawing object
-local function CreateDrawing(Type, Properties)
-    local DrawingObject = Drawing.new(Type)
-    for Property, Value in pairs(Properties) do
-        DrawingObject[Property] = Value
+-- Utility: Create a drawing object and assign its properties.
+local function createDrawing(drawType, properties)
+    local obj = Drawing.new(drawType)
+    for prop, val in pairs(properties) do
+        obj[prop] = val
     end
-    return DrawingObject
+    return obj
 end
 
--- Function to get the correct color (based on team settings)
-local function GetColor(Player)
-    return (ESP.TeamCheck and Player.Team == LocalPlayer.Team) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+-- Utility: Get color based on team (if TeamCheck is enabled).
+local function getColor(player)
+    if ESP.Config.TeamCheck and player.Team and LocalPlayer.Team and player.Team == LocalPlayer.Team then
+        return Color3.fromRGB(0, 255, 0)
+    else
+        return Color3.fromRGB(255, 0, 0)
+    end
 end
 
--- Function to create ESP for a player
-function ESP.Add(Player)
-    if Player == LocalPlayer then return end -- Don't ESP yourself
-    ESPObjects[Player] = {}
+-- Creates ESP drawings for a given player.
+function ESP.Add(player)
+    if player == LocalPlayer then return end -- Skip self
 
-    ESPObjects[Player].Box = CreateDrawing("Square", {Thickness = 1, Filled = false, Color = GetColor(Player)})
-    ESPObjects[Player].Tracer = CreateDrawing("Line", {Thickness = 1, Color = GetColor(Player)})
-    ESPObjects[Player].Name = CreateDrawing("Text", {Size = 18, Outline = true, Color = Color3.new(1, 1, 1)})
-    ESPObjects[Player].HealthBar = CreateDrawing("Square", {Filled = true, Color = Color3.new(0, 1, 0)})
-    ESPObjects[Player].HeadDot = CreateDrawing("Circle", {Filled = true, Radius = 4, Color = GetColor(Player)})
-    ESPObjects[Player].Arrow = CreateDrawing("Triangle", {Filled = true, Color = GetColor(Player)})
+    ESPObjects[player] = {}
+    local color = getColor(player)
+
+    ESPObjects[player].Box = createDrawing("Square", {
+        Thickness = 1,
+        Filled = false,
+        Color = color
+    })
+    ESPObjects[player].Tracer = createDrawing("Line", {
+        Thickness = 1,
+        Color = color
+    })
+    ESPObjects[player].Name = createDrawing("Text", {
+        Size = ESP.Config.TextSize,
+        Outline = true,
+        Color = Color3.new(1, 1, 1)
+    })
+    ESPObjects[player].HealthBar = createDrawing("Square", {
+        Filled = true,
+        Color = Color3.new(0, 1, 0)
+    })
+    ESPObjects[player].HeadDot = createDrawing("Circle", {
+        Filled = true,
+        Radius = 4,
+        Color = color
+    })
+    ESPObjects[player].Arrow = createDrawing("Triangle", {
+        Filled = true,
+        Color = color
+    })
 end
 
--- Function to remove ESP for a player
-function ESP.Remove(Player)
-    if ESPObjects[Player] then
-        for _, Object in pairs(ESPObjects[Player]) do
-            Object:Remove()
+-- Removes ESP drawings for a given player.
+function ESP.Remove(player)
+    if ESPObjects[player] then
+        for _, drawing in pairs(ESPObjects[player]) do
+            drawing:Remove()
         end
-        ESPObjects[Player] = nil
+        ESPObjects[player] = nil
     end
 end
 
--- Function to update ESP for all players
-local function UpdateESP()
-    if not ESP.Enabled then
-        for _, Objects in pairs(ESPObjects) do
-            for _, Object in pairs(Objects) do
-                Object.Visible = false
+-- Main update function run each frame.
+local function updateESP()
+    if not ESP.Config.Enabled then
+        for _, drawings in pairs(ESPObjects) do
+            for _, drawing in pairs(drawings) do
+                drawing.Visible = false
             end
         end
         return
     end
 
-    for Player, ESPData in pairs(ESPObjects) do
-        local Character = Player.Character
-        if Character and Character:FindFirstChild("HumanoidRootPart") and Character:FindFirstChild("Head") then
-            local HRP = Character.HumanoidRootPart
-            local Head = Character.Head
-            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+    for player, drawings in pairs(ESPObjects) do
+        local character = player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Head") then
+            local hrp = character.HumanoidRootPart
+            local head = character.Head
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if not humanoid then continue end
 
-            local ScreenPos, OnScreen = WorldToScreen(HRP.Position)
-            local HeadPos, _ = WorldToScreen(Head.Position)
+            local screenPos, onScreen = worldToScreen(hrp.Position)
+            local headPos, _ = worldToScreen(head.Position)
+            local distance = (hrp.Position - Camera.CFrame.Position).Magnitude
 
-            if OnScreen then
-                local Distance = (HRP.Position - Camera.CFrame.Position).Magnitude
-                if Distance <= ESP.MaxDistance then
-                    local BoxSize = Vector2.new(50, 80) / Distance * 10
-                    local BoxPosition = ScreenPos - BoxSize / 2
-
-                    -- Box ESP
-                    ESPData.Box.Size = BoxSize
-                    ESPData.Box.Position = BoxPosition
-                    ESPData.Box.Visible = ESP.Boxes
-
-                    -- Name
-                    ESPData.Name.Text = Player.Name
-                    ESPData.Name.Position = BoxPosition - Vector2.new(0, 15)
-                    ESPData.Name.Visible = ESP.Names
-
-                    -- Tracer
-                    ESPData.Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-                    ESPData.Tracer.To = ScreenPos
-                    ESPData.Tracer.Visible = ESP.Tracers
-
-                    -- Health Bar
-                    ESPData.HealthBar.Size = Vector2.new(4, BoxSize.Y * (Humanoid.Health / Humanoid.MaxHealth))
-                    ESPData.HealthBar.Position = BoxPosition - Vector2.new(6, 0)
-                    ESPData.HealthBar.Visible = ESP.Health
-
-                    -- Head Dot
-                    ESPData.HeadDot.Position = HeadPos
-                    ESPData.HeadDot.Visible = ESP.HeadDot
-                else
-                    for _, Object in pairs(ESPData) do
-                        Object.Visible = false
-                    end
+            if distance > ESP.Config.MaxDistance then
+                -- Hide all drawings if player is too far.
+                for _, drawing in pairs(drawings) do
+                    drawing.Visible = false
                 end
+                continue
+            end
+
+            if onScreen then
+                -- Calculate box dimensions relative to distance.
+                local boxSize = (ESP.Config.BoxBaseSize / distance) * ESP.Config.BoxSizeFactor
+                local boxPos = screenPos - boxSize / 2
+
+                -- Update Box
+                drawings.Box.Size = boxSize
+                drawings.Box.Position = boxPos
+                drawings.Box.Visible = ESP.Config.Boxes
+
+                -- Update Name
+                drawings.Name.Text = player.Name
+                drawings.Name.Position = boxPos + ESP.Config.NameOffset
+                drawings.Name.Visible = ESP.Config.Names
+
+                -- Update Tracer
+                drawings.Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                drawings.Tracer.To = screenPos
+                drawings.Tracer.Visible = ESP.Config.Tracers
+
+                -- Update Health Bar
+                local healthRatio = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+                drawings.HealthBar.Size = Vector2.new(ESP.Config.HealthBarWidth, boxSize.Y * healthRatio)
+                drawings.HealthBar.Position = boxPos + ESP.Config.HealthBarOffset
+                drawings.HealthBar.Visible = ESP.Config.Health
+
+                -- Update Head Dot
+                drawings.HeadDot.Position = headPos
+                drawings.HeadDot.Visible = ESP.Config.HeadDot
+
+                -- Hide Arrow if on screen.
+                drawings.Arrow.Visible = false
             else
-                -- Off-Screen Arrow
-                local Direction = (HRP.Position - Camera.CFrame.Position).Unit
-                local ArrowPos = Camera.ViewportSize / 2 + Vector2.new(Direction.X, Direction.Y) * 150
-                ESPData.Arrow.PointA = ArrowPos + Vector2.new(-10, 10)
-                ESPData.Arrow.PointB = ArrowPos + Vector2.new(10, 10)
-                ESPData.Arrow.PointC = ArrowPos + Vector2.new(0, -10)
-                ESPData.Arrow.Visible = ESP.Arrows
+                -- Off-screen: Show arrow if enabled.
+                if ESP.Config.Arrows then
+                    -- Hide other drawings.
+                    drawings.Box.Visible = false
+                    drawings.Name.Visible = false
+                    drawings.Tracer.Visible = false
+                    drawings.HealthBar.Visible = false
+                    drawings.HeadDot.Visible = false
+
+                    -- Calculate arrow position.
+                    local direction = (hrp.Position - Camera.CFrame.Position).Unit
+                    local arrowPos = (Vector2.new(Camera.ViewportSize.X, Camera.ViewportSize.Y) / 2) +
+                                     Vector2.new(direction.X, direction.Y) * ESP.Config.ArrowDistance
+
+                    drawings.Arrow.PointA = arrowPos + ESP.Config.ArrowPoints[1]
+                    drawings.Arrow.PointB = arrowPos + ESP.Config.ArrowPoints[2]
+                    drawings.Arrow.PointC = arrowPos + ESP.Config.ArrowPoints[3]
+                    drawings.Arrow.Visible = true
+                else
+                    drawings.Arrow.Visible = false
+                end
             end
         else
-            ESP.Remove(Player) -- Remove ESP if player leaves
+            ESP.Remove(player)  -- Clean up if the player's character is not valid.
         end
     end
 end
 
-RunService.RenderStepped:Connect(UpdateESP)
+RunService.RenderStepped:Connect(updateESP)
 
--- Function to apply ESP to all players
+-- Apply ESP to all current players.
 function ESP.ApplyToAll()
-    for _, Player in pairs(Players:GetPlayers()) do
-        ESP.Add(Player)
+    for _, player in ipairs(Players:GetPlayers()) do
+        ESP.Add(player)
     end
 end
 
--- Connect Player Events
+-- Connect events for players joining and leaving.
 Players.PlayerAdded:Connect(ESP.Add)
 Players.PlayerRemoving:Connect(ESP.Remove)
 ESP.ApplyToAll()
