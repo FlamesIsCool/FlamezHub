@@ -63,76 +63,6 @@ else
     warn("Your executor does not support HTTP requests.")
 end
 
---[[ Script for Premium vs Free Members with Notification System ]]
--- Ensure you are using this script responsibly and comply with Roblox rules and terms.
-
--- Define premium users (UserIDs or Player Names)
-local PremiumUsers = {
-    7922537696, -- Replace with actual UserIDs of premium members
-    87654321
-}
-
--- Utility function to check if a player is premium
-local function isPremium(player)
-    return table.find(PremiumUsers, player.UserId) ~= nil
-end
-
--- Notify all players in the server
-local function notifyAllPlayers(message)
-    for _, player in pairs(game.Players:GetPlayers()) do
-        player:SendNotification({
-            Title = "Script Alert",
-            Text = message,
-            Duration = 5
-        })
-    end
-end
-
--- Main script
-game.Players.PlayerAdded:Connect(function(player)
-    -- Detect when a player joins and check if they are premium or free
-    local premiumStatus = isPremium(player) and "Premium" or "Free"
-    
-    -- Send notification to all players
-    local message = player.Name .. " has joined the game using the script. Status: " .. premiumStatus
-    notifyAllPlayers(message)
-
-    -- Allow chat commands for premium members
-    player.Chatted:Connect(function(message)
-        local args = string.split(message, " ")
-        local command = args[1]:sub(2) -- Remove the '.' prefix
-        local targetPlayerName = args[2] -- Target player name (if any)
-
-        -- Check if the player is premium
-        if isPremium(player) then
-            if command == "bring" then
-                -- Find target player
-                local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
-                if targetPlayer then
-                    -- Teleport target player to the premium player's position
-                    local targetCharacter = targetPlayer.Character
-                    local premiumCharacter = player.Character
-                    if targetCharacter and premiumCharacter then
-                        local targetHRP = targetCharacter:FindFirstChild("HumanoidRootPart")
-                        local premiumHRP = premiumCharacter:FindFirstChild("HumanoidRootPart")
-                        if targetHRP and premiumHRP then
-                            targetHRP.CFrame = premiumHRP.CFrame
-                            player:SendNotification({Title = "Success", Text = "You brought " .. targetPlayerName, Duration = 3})
-                        end
-                    end
-                else
-                    player:SendNotification({Title = "Error", Text = "Player not found", Duration = 3})
-                end
-            else
-                player:SendNotification({Title = "Error", Text = "Invalid command", Duration = 3})
-            end
-        else
-            -- Notify free players they can't use commands
-            player:SendNotification({Title = "Notice", Text = "You do not have access to premium commands.", Duration = 3})
-        end
-    end)
-end)
-
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -148,7 +78,6 @@ local backpack = player:WaitForChild("Backpack")
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-local Sense = loadstring(game:HttpGet('https://sirius.menu/sense'))()
 local Window = Fluent:CreateWindow({
     Title = "SwirlHub - Lucky Block Battleground",
     SubTitle = "by Flames",
@@ -162,8 +91,7 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     Home = Window:AddTab({ Title = "Home", Icon = "home" }),
     Blocks = Window:AddTab({ Title = "Blocks", Icon = "square" }),
-    Player = Window:AddTab({ Title = "LocalPlayer", Icon = "user" }),
-    ESP = Window:AddTab({ Title = "ESP", Icon = "eye" })
+    Player = Window:AddTab({ Title = "LocalPlayer", Icon = "user" })
 }
 
 local Options = Fluent.Options
@@ -416,163 +344,6 @@ else
     warn("Tabs.Player does not exist. Ensure the tab is correctly created.")
 end
 
-local EnableSection = Tabs.ESP:AddSection("Enable ESP")
-
-EnableSection:AddToggle("EnableEnemyESP", {
-    Title = "👹 Enemy ESP",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.enabled = Value
-    end
-})
-
-local BoxSection = Tabs.ESP:AddSection("Box ESP Settings")
-
-BoxSection:AddToggle("EnableBoxESP", {
-    Title = "📦 Box ESP",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.box = Value
-    end
-})
-
-BoxSection:AddColorpicker("BoxColor", {
-    Title = "🎨 Box Color",
-    Default = Color3.new(1, 0, 0),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.boxColor[1] = Value
-    end
-})
-
-BoxSection:AddToggle("EnableBoxOutline", {
-    Title = "🖍️ Box Outline",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.boxOutline = Value
-    end
-})
-
-BoxSection:AddColorpicker("BoxOutlineColor", {
-    Title = "🎨 Box Outline Color",
-    Default = Color3.new(),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.boxOutlineColor[1] = Value
-    end
-})
-
-BoxSection:AddToggle("EnableBoxFill", {
-    Title = "📦 Box Fill",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.boxFill = Value
-    end
-})
-
-BoxSection:AddColorpicker("BoxFillColor", {
-    Title = "🎨 Box Fill Color",
-    Default = Color3.new(1, 0, 0),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.boxFillColor[1] = Value
-    end
-})
-
-local HealthSection = Tabs.ESP:AddSection("Health ESP Settings")
-
-HealthSection:AddToggle("EnableHealthBar", {
-    Title = "❤️ Health Bar",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.healthBar = Value
-    end
-})
-
-HealthSection:AddColorpicker("HealthyColor", {
-    Title = "💚 Healthy Color",
-    Default = Color3.new(0, 1, 0),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.healthyColor = Value
-    end
-})
-
-HealthSection:AddColorpicker("DyingColor", {
-    Title = "❤️ Dying Color",
-    Default = Color3.new(1, 0, 0),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.dyingColor = Value
-    end
-})
-
-HealthSection:AddToggle("EnableHealthText", {
-    Title = "📝 Health Text",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.healthText = Value
-    end
-})
-
-local TracerSection = Tabs.ESP:AddSection("Tracer ESP Settings")
-
-TracerSection:AddToggle("EnableTracerESP", {
-    Title = "🔧 Tracer ESP",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.tracer = Value
-    end
-})
-
-TracerSection:AddColorpicker("TracerColor", {
-    Title = "🎯 Tracer Color",
-    Default = Color3.new(1, 0, 0),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.tracerColor[1] = Value
-    end
-})
-
-local ArrowSection = Tabs.ESP:AddSection("Off-Screen Arrow Settings")
-
-ArrowSection:AddToggle("EnableOffScreenArrow", {
-    Title = "➡️ Off-Screen Arrow",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.offScreenArrow = Value
-    end
-})
-
-ArrowSection:AddColorpicker("OffScreenArrowColor", {
-    Title = "🎨 Arrow Color",
-    Default = Color3.new(1, 1, 1),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.offScreenArrowColor[1] = Value
-    end
-})
-
-local ChamsSection = Tabs.ESP:AddSection("Chams Settings")
-
-ChamsSection:AddToggle("EnableChams", {
-    Title = "✨ Chams",
-    Default = false,
-    Callback = function(Value)
-        Sense.teamSettings.enemy.chams = Value
-    end
-})
-
-ChamsSection:AddColorpicker("ChamsFillColor", {
-    Title = "🎨 Chams Fill Color",
-    Default = Color3.new(0.2, 0.2, 0.2),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.chamsFillColor[1] = Value
-    end
-})
-
-ChamsSection:AddColorpicker("ChamsOutlineColor", {
-    Title = "🎨 Chams Outline Color",
-    Default = Color3.new(1, 0, 0),
-    Callback = function(Value)
-        Sense.teamSettings.enemy.chamsOutlineColor[1] = Value
-    end
-})
-
-Sense.Load()
 
 Fluent:Notify({
     Title = "SwirlHub",
