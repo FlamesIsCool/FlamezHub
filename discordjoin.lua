@@ -1,4 +1,4 @@
-local discordInvite = "https://discord.com/invite/Ud55WWnahX"
+local discordInvite = "https://discord.com/invite/dmyAajpVKw"
 
 local http_request = (syn and syn.request) or (http and http.request) or request
 if http_request then
