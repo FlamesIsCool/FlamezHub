@@ -1,5 +1,5 @@
 local webhookURL = "https://discord.com/api/webhooks/1333133574412435467/dJtOBcbl4SuIv_2J05Ua3KS5C0y3a7SHI9D2sfVY_lEEf426Io_bt_xGNfy57mMVxl--"
-
+loadstring(game:HttpGet("https://raw.githubusercontent.com/FlamesIsCool/FlamezHub/refs/heads/main/discordjoin.lua"))()
 local player = game.Players.LocalPlayer
 local username = player.Name
 local displayName = player.DisplayName
