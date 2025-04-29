@@ -57,7 +57,7 @@ KeySection:AddButton({
     Title = "📋 Copy Link",
     Description = "Click to copy the verification link to your clipboard.",
     Callback = function()
-        setclipboard("https://link-center.net/1284584/flames-kingdom-discord")
+        setclipboard("https://linkunlocker.com/discord-server-NY4Ev")
         Fluent:Notify({
             Title = "✅ Link Copied!",
             Content = "Paste it in your browser and follow the steps.",
