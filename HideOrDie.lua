@@ -32,7 +32,7 @@ end)
 
 Tabs.Main:AddButton({
     Title = "Invisible",
-    Description = "Makes you invisible by setting morph rotate to math.huge.",
+    Description = "Makes you invisible only if your prop.",
     Callback = function()
         local args = { math.huge }
         local success, err = pcall(function()
