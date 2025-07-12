@@ -1,78 +1,58 @@
+local SCRIPT_ID = "e0f091812777232dbd17eb33578f97d0"
+local LOADER_URL = "https://api.luarmor.net/files/v3/loaders/" .. SCRIPT_ID .. ".lua"
+local KEY_LINK = "https://ads.luarmor.net/v/cb/aryRIsTZeyhR/oHpqgwldFDpwBXeB"
 
-local VALID_KEY_B64 = "YnJpZGdlYnVpbGRlcnNfMTIzY3hnMjMxMzNkZg=="
-local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/FlamesIsCool/FlamezHub/refs/heads/main/bridge_builders.lua"
-local KEY_LINK = "https://workink.net/1RvP/udgb880w"
-
-local function decodeBase64(data)
-    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    data = data:gsub('[^'..b..'=]', '')
-    return (data:gsub('.', function(x)
-        if x == '=' then return '' end
-        local r,f='',(b:find(x)-1)
-        for i=6,1,-1 do r=r..(f%2^i - f%2^(i-1) > 0 and '1' or '0') end
-        return r
-    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
-        if #x ~= 8 then return '' end
-        local c=0
-        for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
-        return string.char(c)
-    end))
-end
+local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
+api.script_id = SCRIPT_ID
 
 local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
 local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
-
 local Options = Library.Options
+
 local Window = Library:CreateWindow({
-    Title = "🔐 Key System",
-    Footer = "Enter Key to Continue",
-    Icon = 95816097006870,
-    NotifySide = "Right",
+    Title = "🔐 Luarmor Key System",
+    Footer = "Complete the ad checkpoint and paste your key",
+    Center = true,
+    AutoShow = true,
 })
 
-local Tabs = {
-    Key = Window:AddTab("Key", "lock"),
-}
+local tab = Window:AddTab("Key", "lock")
+local grp = tab:AddLeftGroupbox("Get Your Script Key")
 
-local KeyGroup = Tabs.Key:AddLeftGroupbox("Enter Key")
+grp:AddLabel("1️⃣ Click to copy the key link:")
+grp:AddButton("🌐 Copy Key Link", function()
+    setclipboard(KEY_LINK)
+    Library:Notify("Link copied! Complete it in browser…", 4)
+end)
 
-KeyGroup:AddLabel("Enter your key below to unlock the script:")
-
-KeyGroup:AddInput("UserKeyInput", {
-    Placeholder = "Paste key here...",
-    Text = "Access Key",
+grp:AddLabel("2️⃣ Enter your Luarmor key below:")
+grp:AddInput("UserKeyInput", {
+    Placeholder = "Your Luarmor key here...",
     ClearTextOnFocus = true,
 })
 
-KeyGroup:AddButton("Submit Key", function()
-    local userKey = Options.UserKeyInput.Value
-    local realKey = decodeBase64(VALID_KEY_B64)
+grp:AddButton("✅ Submit Key", function()
+    local key = Options.UserKeyInput.Value
+    if not key or #key < 10 then
+        return Library:Notify("❌ Paste a valid key!", 3)
+    end
 
-    if userKey == realKey then
-        Library:Notify("✅ Correct key! Loading script...", 3)
+    Library:Notify("🔍 Verifying key…", 3)
+    local status = api.check_key(key)
+    if status.code == "KEY_VALID" then
+        Library:Notify("✅ Valid key! Loading script…", 3)
         task.wait(1)
+        getgenv().script_key = key
         Library:Unload()
-
-        local success, result = pcall(function()
-            loadstring(game:HttpGet(MAIN_SCRIPT_URL))()
-        end)
-
-        if not success then
-            warn("❌ Failed to load script:", result)
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Load Failed",
-                Text = "Could not load main script.",
-                Duration = 5,
-            })
-        end
+        loadstring(game:HttpGet(LOADER_URL))()
     else
-        Library:Notify("❌ Invalid key. Try again.", 3)
+        Library:Notify("❌ Key error: " .. status.message, 5)
     end
 end)
 
-KeyGroup:AddButton("Copy Key Link", function()
-    setclipboard(KEY_LINK)
-    Library:Notify("✅ Key link copied to clipboard.", 3)
-end)
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+ThemeManager:ApplyTheme("Dracula")
+SaveManager:BuildConfigSection(tab)
