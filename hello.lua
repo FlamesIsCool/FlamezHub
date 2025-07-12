@@ -2,14 +2,12 @@
 local VALID_KEY = 'bridgebuilders_123cxg23133df'
 local MAIN_SCRIPT_URL =
     'https://raw.githubusercontent.com/FlamesIsCool/FlamezHub/refs/heads/main/bridge_builders.lua'
+local KEY_LINK = 'https://workink.net/1RvP/udgb880w'
 
 -- ⚙️ Linoria UI setup
 local repo = 'https://raw.githubusercontent.com/deividcomsono/Obsidian/main/'
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager =
-    loadstring(
-        game:HttpGet(repo .. 'addons/ThemeManager.lua')
-    )()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 local Options = Library.Options
@@ -56,4 +54,10 @@ KeyGroup:AddButton('Submit Key', function()
     else
         Library:Notify('❌ Invalid key. Try again.', 3)
     end
+end)
+
+-- 📋 Copy Key Link Button
+KeyGroup:AddButton('Copy Key Link', function()
+    setclipboard(KEY_LINK)
+    Library:Notify('✅ Key link copied to clipboard.', 3)
 end)
