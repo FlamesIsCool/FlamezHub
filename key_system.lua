@@ -1,5 +1,5 @@
 local expectedKey = "HIDEKEY3152" -- CHANGE THIS TO YOUR KEY
-local keySystemLink = "https://link-center.net/1284584/roblox-hide-or-die-script" -- CHANGE THIS TO YOUR KEY SITE
+local keySystemLink = "https://link-center.net/1284584/flames-kingdom-discord" -- CHANGE THIS TO YOUR KEY SITE
 local scriptURL = "https://raw.githubusercontent.com/FlamesIsCool/FlamezHub/refs/heads/main/HideOrDie.lua"
 
 -- Create ScreenGui
