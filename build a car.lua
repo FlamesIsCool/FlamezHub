@@ -94,7 +94,7 @@ Tabs.Main:AddButton({
 
 Tabs.Main:AddButton({
 	Title = 'Infinite Cash',
-	Description = 'Gives you infinite money (requires exploit method)',
+	Description = 'Gives you infinite money',
 	Callback = function()
 		local Players = game:GetService('Players')
 		local LocalPlayer = Players.LocalPlayer
@@ -173,3 +173,4 @@ Fluent:Notify({
 })
 
 SaveManager:LoadAutoloadConfig()
+
