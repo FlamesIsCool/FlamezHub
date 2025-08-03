@@ -57,7 +57,7 @@ KeySection:AddButton({
     Title = "📋 Copy Link",
     Description = "Click to copy the verification link to your clipboard.",
     Callback = function()
-        setclipboard("https://workink.net/1RvP/jv4dmmw0")
+        setclipboard("https://publisher.linkvertise.com/dashboard#:~:text=https%3A//link%2Dcenter.net/1284584/flames%2Dkingdom%2Ddiscord")
         Fluent:Notify({
             Title = "✅ Link Copied!",
             Content = "Paste it in your browser and follow the steps.",
