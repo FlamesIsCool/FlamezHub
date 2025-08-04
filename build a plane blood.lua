@@ -80,10 +80,9 @@ local function getCoinsSorted()
     local pos = char:WaitForChild("HumanoidRootPart").Position
     local allCoins = {}
 
-    for _, section in ipairs(workspace:WaitForChild("SpawnedSections"):GetChildren()) do
-        local coins = section:FindFirstChild("Coins")
-        if coins then
-            for _, coin in ipairs(coins:GetChildren()) do
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Folder") and obj.Name == "Coins" then
+            for _, coin in ipairs(obj:GetChildren()) do
                 if coin:IsA("BasePart") then
                     table.insert(allCoins, coin)
                 end
@@ -99,13 +98,14 @@ local function getCoinsSorted()
     return cachedCoins
 end
 
+
 spawn(function()
     while true do
         task.wait(0.1)
         if autofarmEnabled then
             waitForRespawn()
             fireLaunchAndPortal()
-            task.wait(0.2)
+            task.wait(0.1)
 
             local vehicle = getVehicle()
             if not vehicle then warn("No vehicle") task.wait(1) continue end
@@ -120,7 +120,7 @@ spawn(function()
                 tpVehicleTo(vehicle, coin.Position)
                 collectCoin(coin)
                 currentIndex += 1
-                task.wait(0.05)
+                task.wait(0.1)
             end
         end
     end
