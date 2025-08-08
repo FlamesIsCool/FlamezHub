@@ -32,6 +32,9 @@ local scriptMappings = {
     
     -- Build a Plane (BLOOD MOON AUTOFARM)
     [137925884276740] = "https://raw.githubusercontent.com/FlamesIsCool/FlamezHub/refs/heads/main/build%20a%20plane%20blood.lua",
+
+    -- your actual keyboard
+    [92777117358647] = "https://raw.githubusercontent.com/FlamesIsCool/FlamezHub/refs/heads/main/your%20actual%20keyboard.lua",
 }
 
 -- Check the current PlaceId and fetch the matching script
